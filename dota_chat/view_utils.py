@@ -54,7 +54,7 @@ def query_opendota_api_route_args(routeArgs,**kwargs):
         logger.error(errStr)
         queryRes = requests.Response()
         queryRes.status_code = 500
-        pdb.set_trace()
+        #pdb.set_trace()
 
     dataDict = queryRes.json()
 
@@ -84,7 +84,10 @@ def winRatePlot(request,hero_id):
     xLabels = ['Win','Loss']
     colors = ['#24ba1c','#ba1c1c']
 
-    wlRates = [wins/(wins+losses),losses/(wins+losses)]
+    try:
+        wlRates = [wins/(wins+losses),losses/(wins+losses)]
+    except Exception as e:
+        wlRates = [0.,0.]
 
     # configure plotting
     bokehAx=bp.figure(x_range=xLabels,plot_width=325,sizing_mode='scale_height')

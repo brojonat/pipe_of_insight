@@ -1,3 +1,4 @@
 *.ini
 *media*
 *static*
+*.pyc
