@@ -34,7 +34,10 @@ class Command(BaseCommand):
             apiKey = settings.OPENDOTA_API_KEY
 
             #items = list(models.Item.objects.filter(opendota_img__is_null=False))
-            abilities = list(models.HeroAbility.objects.filter(opendota_img__isnull=False))
+            abilities = list(models.HeroAbility.objects
+                                .filter(opendota_img__isnull=False)
+                                .exclude(opendota_img__exact='')
+                        )
 
             for ability in abilities:
 
@@ -67,6 +70,6 @@ class Command(BaseCommand):
                 except Exception as e:
                     self.stdout.write(
                         self.style.ERROR('Failed to store Ability data: {}'.format(str(e))))
-                    pdb.set_trace()
+                    #pdb.set_trace()
 
 
