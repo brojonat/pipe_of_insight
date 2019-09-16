@@ -1,0 +1,21 @@
+{% extends "dota_chat/user/header_user_list.html" %}
+{% load django_tables2 %}
+{% load staticfiles %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <nav class="flex-fill" aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Dashboard</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Users</a></li>
+            </ol>
+        </nav>
+    </div>
+    {% if viewContent.table %}
+        {% render_table viewContent.table %}
+    {% else %}
+            <div> <p>No table data available (yet).</p></div>
+    {% endif %}
+</div>
+{% endblock %}

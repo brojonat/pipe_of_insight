@@ -1,0 +1,32 @@
+{% extends "dota_chat/user/header_user_list.html" %}
+{% load django_tables2 %}
+{% load staticfiles %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <nav class="flex-fill" aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Dashboard</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'user_list_view' %}">Users</a></li>
+                <li class="breadcrumb-item active" aria-current="page">{{ viewContent.object.name }}</a></li>
+            </ol>
+        </nav>
+    </div>
+
+    <div class="row">
+        <!-- Chat stuff-->
+        <div class="col-12 mb-3">
+            {{ viewContent.object }}
+        </div>
+        <div class="col-12" style="background-color: #efffc2">
+            <h5>Chat Log:</h5>
+            {% for player,chatLog in viewContent.chat.items %}
+                {% for chat in chatLog %}
+                    <p>{{ player }} said "{{ chat.1 }}" at {{ chat.0 }}</p>
+                {% endfor %}
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

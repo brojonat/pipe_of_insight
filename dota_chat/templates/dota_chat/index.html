@@ -1,0 +1,17 @@
+{% extends "dota_chat/header_login.html" %}
+
+{% block content %}
+    <div class="row">
+        <div  class="center-div">
+            <div class="col-md-12">
+
+                <div class="card text-center">
+                    <div class="card-body">
+                        <h1 class="h3 mb-3 font-weight-normal">Pipe of Insight</h1>
+                        <p>Please <a href="{% url 'auth_login' %}">login</a> to continue.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
