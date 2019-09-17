@@ -88,6 +88,7 @@ class HeroAbility(HeroAbilityBaseModel):
     isChannelCancelling = models.BooleanField(default=False)
     isHardDisable = models.BooleanField(default=False)
     isDisable = models.BooleanField(default=False)
+    isChanneled = models.BooleanField(default=False)
     isCoreSpell = models.BooleanField(default=False)
     isAghsSpell = models.BooleanField(default=False)
     isTalent = models.BooleanField(default=False)
