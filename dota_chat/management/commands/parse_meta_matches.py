@@ -10,6 +10,7 @@ import pandas as pd
 from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
 import dota_chat.models as models
+import dota_chat.constants as dc_constants
 
 def str2bool(inStr):
     ''' Returns True/False based on some heuristics '''
@@ -160,7 +161,8 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         # required args
-        parser.add_argument('--match-file',help='file of match IDs (one per row)')
+        parser.add_argument('--bucket-key-file',
+                    help='file of match IDs on S3 (e.g. dota2/match_dump_2019-09-01.txt')
         parser.add_argument('--verbose', action='store_true')
         parser.add_argument('--query', action='store_true')
 
@@ -175,22 +177,31 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
 
         # init
-        matchFile = options.get('match_file')
+        bucket = 'brojonat.dota2'
+        bucketKeyFile = options.get('bucket_key_file')
+
         VERBOSE = options.get('verbose')
         QUERY = options.get('query')
         ANON_ID = 4294967295
-        bucket = 'brojonat.dota2'
-        bucketKey = 'dota2/matches_small.csv'
         matchCount = 0
 
-        matchList = []
-        with open(matchFile,'r') as fin:
-            for line in fin:
-                matchID = int(line)
-                matchList.append(matchID)
+        try:
 
+            s3Client = boto3.client('s3')
+            s3Obj = s3Client.get_object(Bucket=bucket, Key=bucketKeyFile)
+            df = pd.read_csv(
+                        io.BytesIO(s3Obj['Body'].read()),
+                        header=None,
+                        names=['matchIDs']
+                    )
+
+        except Exception as e:
+            self.stdout.write(
+                self.style.ERROR('Failed to retrieve file from S3: {}'.format(str(e))))
+            sys.exit(1)
+
+        matchList = df['matchIDs'].tolist()
         nMatches = len(matchList)
-
 
         # loop over the file iterator
         for matchID in matchList:
@@ -233,19 +244,38 @@ class Command(BaseCommand):
                     )
 
                 # get the canned quantities
-                matchDict['match_id'] = match['match_id']
-                matchDict['match_seq_num'] = match['match_seq_num']
-                matchDict['start_time'] = match['start_time']
-                matchDict['duration'] = match['duration']
-                matchDict['human_players'] = match['human_players']
+                matchDict['match_id'] = match.get('match_id')
+                matchDict['match_seq_num'] = match.get('match_seq_num')
+                matchDict['start_time'] = match.get('start_time')
+                matchDict['game_mode'] = match.get('game_mode')
+                matchDict['region'] = match.get('region')
+                matchDict['patch'] = match.get('patch')
+                matchDict['picks_bans'] = match.get('picks_bans')
+                matchDict['duration'] = match.get('duration')
+                matchDict['human_players'] = match.get('human_players')
                 matchDict['radiant_win'] = radiantWinBool
 
                 # match
-                matchDefaults = {key:val for key,val in matchDict.items() if key != 'match_id'}
+                bannedKeys = ['match_id','picks_bans']
+                matchDefaults = {key:val for key,val in matchDict.items() if key not in bannedKeys}
                 matchInstance,matchCreated = models.Match.objects.get_or_create(
                                                         matchID=matchDict['match_id'],
                                                         defaults=matchDefaults
                     )
+
+                # populate bans
+                if matchDict['picks_bans'] is not None:
+                    for item in matchDict['picks_bans']:
+                        if not item['is_pick']:
+                            heroInstance = models.Hero.objects.get(valveID=item['hero_id'])
+                            matchInstance.bans.add(heroInstance)
+                            if VERBOSE:
+                                outStr = 'Banned {}'.format(heroInstance)
+                                self.stdout.write(
+                                    self.style.WARNING(
+                                        outStr
+                                    )
+                                )
 
                 # for each player in the match
                 for userID,playerEntry in playerEntries.items():
@@ -296,5 +326,3 @@ class Command(BaseCommand):
                         )
                     )
                 )
-
-                pdb.set_trace()

@@ -1,4 +1,4 @@
-import os,sys,shutil,pdb,glob,logging,datetime,tarfile,json
+import os,sys,shutil,pdb,glob,logging,datetime,tarfile,json,copy
 import numpy as np 
 
 from . import models as models
@@ -41,6 +41,7 @@ class HeroListView(ListView):
 
     def get_context_data(self,**kwargs):
         context = super().get_context_data(**kwargs)
+        context['user'] = self.request.user.username
 
         table = tables.HeroListTable(models.Hero.objects.all().order_by('name'))
         RequestConfig(self.request,paginate={'per_page':15}).configure(table)
@@ -61,12 +62,16 @@ class HeroDetailView(DetailView):
 
         # construct abilities
         allAbilities = list(self.object.abilities.all().order_by('abilitySlot'))
+        allAbilityBehaviors = list(models.AbilityBehaviors.objects.all().order_by('behavior'))
 
         abilities = []
 
         for ability in allAbilities:
-            if ability.img:
+            isCoreSpell = ability.behavior.filter(behavior='Core Spell').exists()
+            isAghsSpell = ability.behavior.filter(behavior='Granted By Scepter').exists()
+            if ability.img and (isCoreSpell or isAghsSpell):
                 abilities.append(ability)
+
         context['abilities'] = abilities
 
         # construct chat
@@ -83,13 +88,43 @@ class HeroDetailView(DetailView):
                 else:
                     chatLog[playerName] = [entry]
         context['chat'] = chatLog
-        outStr = ''
-        for playerID,entryList in context['chat'].items():
-            for tup in entryList:
-                outStr += tup[1] + ' '
 
-        print(outStr)
+        context['allAbilityBehaviors'] = []
+        context['allBehaviorColors'] = []
 
+        for abilityBehavior in allAbilityBehaviors:
+            context['allAbilityBehaviors'].append(abilityBehavior)
+            context['allBehaviorColors'].append(abilityBehavior.color)
+
+        return {self.context_object_name: context}
+
+
+class AbilityListView(ListView):
+    ''' ListView for abilities in Dota 2 '''
+    model = models.HeroAbility 
+    template_name = 'dota_chat/hero/ability_list_view.html'
+    context_object_name = 'viewContent'
+
+    def get_context_data(self,**kwargs):
+        context = super().get_context_data(**kwargs)
+        context['user'] = self.request.user.username
+
+        table = tables.AbilityListTable(models.HeroAbility.objects.all().order_by('name'))
+        RequestConfig(self.request,paginate={'per_page':50}).configure(table)
+        context['table'] = table
+
+        return {self.context_object_name: context}
+
+
+class AbilityDetailView(DetailView):
+    ''' DetailView for abilities in Dota 2 '''
+    model = models.HeroAbility
+    template_name = 'dota_chat/hero/ability_detail_view.html'
+    context_object_name = 'viewContent'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['user'] = self.request.user.username
         return {self.context_object_name: context}
 
 class PlayerListView(ListView):
@@ -224,3 +259,46 @@ def dashboard(request):
     viewContent['user'] = request.user.username
 
     return render(request, 'dota_chat/basic.html', {'viewContent': viewContent})
+
+
+def addAbilityBehaviors(request):
+    if request.method == 'POST':
+        abilityDict = json.loads(request.body)
+        abilityID = abilityDict.get('abilityID')
+        updatedBehaviorIDs = abilityDict.get('behaviorIDs')
+
+        if abilityID is not None:
+            ability = models.HeroAbility.objects.get(id=abilityID)
+            currentBehaviors = ability.behavior.all()
+            currentBehaviorIDs = [behavior.id for behavior in currentBehaviors]
+        else:
+            currentBehaviorIDs = []
+
+        # add any that are in the current/updated list but not present
+        for behaviorID in updatedBehaviorIDs:
+            behavior = models.AbilityBehaviors.objects.get(id=behaviorID)
+            ability.behavior.add(behavior)
+
+        return JsonResponse({'success': True})
+
+def removeAbilityBehaviors(request):
+    if request.method == 'POST':
+        abilityDict = json.loads(request.body)
+        abilityID = abilityDict.get('abilityID')
+        updatedBehaviorIDs = abilityDict.get('behaviorIDs')
+
+        if abilityID is not None:
+            ability = models.HeroAbility.objects.get(id=abilityID)
+            currentBehaviors = ability.behavior.all()
+            currentBehaviorIDs = [behavior.id for behavior in currentBehaviors]
+        else:
+            currentBehaviorIDs = []
+
+        # add any that are in the current/updated list but not present
+        for behaviorID in updatedBehaviorIDs:
+            behavior = models.AbilityBehaviors.objects.get(id=behaviorID)
+            ability.behavior.remove(behavior)
+
+
+
+        return JsonResponse({'success': True})

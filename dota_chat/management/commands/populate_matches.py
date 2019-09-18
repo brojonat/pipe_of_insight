@@ -149,7 +149,8 @@ def parse_chat_pgroup(chatList,playerDict,num_humans=10,QUERY_OPENDOTA_API=False
 
 
 class Command(BaseCommand):
-    help = 'Populates hero models from dotaconstants JSON file'
+    help = '\nNOTE: THIS IS DEPRICATED!!!!!!!\n'
+    help += 'Populates hero models from dotaconstants JSON file'
 
     def add_arguments(self, parser):
         # required args

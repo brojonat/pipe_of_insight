@@ -1,0 +1,19 @@
+{% extends "dota_chat/hero/header_hero_list.html" %}
+{% load django_tables2 %}
+{% load staticfiles %}
+
+{% block content %}
+    <div class="container">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Dashboard</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Heros</a></li>
+            </ol>
+        </nav>
+        {% if viewContent.table %}
+            {% render_table viewContent.table %}
+        {% else %}
+                <div> <p>No table data available (yet).</p></div>
+        {% endif %}
+    </div>
+{% endblock %}

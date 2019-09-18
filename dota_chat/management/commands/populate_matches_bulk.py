@@ -161,7 +161,8 @@ def parse_chat_pgroup(chatList,playerDict,num_humans=10,QUERY_OPENDOTA_API=False
 
 
 class Command(BaseCommand):
-    help = 'Populates hero models from dotaconstants JSON file\n'
+    help = '\nNOTE: THIS IS DEPRICATED!!!!!!!\n'
+    help += 'Populates hero models from dotaconstants JSON file\n'
     help += 'IMPORTANT: since this is using the ORM bulk_create,\n'
     help += 'protections like referential integrity may be disabled!\n'
     help += 'This should only be used on a clean/empty DB'

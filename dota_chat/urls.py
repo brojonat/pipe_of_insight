@@ -29,8 +29,11 @@ urlpatterns = [
     re_path(r'^logout/$', auth_views.LogoutView.as_view(template_name='dota_chat/logged_out.html'), name='auth_logout'),
     re_path(r'^dashboard/$', views.dashboard, name='dashboard'),
     
-    re_path(r'^heros/$',views.HeroListView.as_view(),name='hero_list_view'),
-    re_path(r'^heros/(?P<slug>[\w-]+)/$',views.HeroDetailView.as_view(),name='hero_detail_view'),
+    re_path(r'^heroes/$',views.HeroListView.as_view(),name='hero_list_view'),
+    re_path(r'^heroes/(?P<slug>[\w-]+)/$',views.HeroDetailView.as_view(),name='hero_detail_view'),
+
+    re_path(r'abilities/$',views.AbilityListView.as_view(),name='ability_list_view'),
+    re_path(r'abilities/(?P<pk>[0-9]+)/$',views.AbilityDetailView.as_view(),name='ability_detail_view'),
 
     re_path(r'^players/$',views.PlayerListView.as_view(),name='player_list_view'),
     re_path(r'^players/(?P<slug>[\w-]+)/$',views.PlayerDetailView.as_view(),name='player_detail_view'),
@@ -48,4 +51,10 @@ urlpatterns_functions = [
 
 ]
 
+urlpattern_lists = [
+    re_path(r'^addAbilityBehaviors/$', views.addAbilityBehaviors, name='add_ability_behaviors'),
+    re_path(r'^removeAbilityBehaviors/$', views.removeAbilityBehaviors, name='remove_ability_behaviors'),
+]
+
 urlpatterns += urlpatterns_functions
+urlpatterns += urlpattern_lists

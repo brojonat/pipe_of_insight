@@ -22,7 +22,7 @@
         <div class="col-2" id="winRatePlot"></div>
         <div class="col-4" id="winLossChatPlot"></div>
 
-        <!-- Rightward content (hero panel stuff)-->
+        <!-- Rightward content (hero panel stuff) -->
         <div class="col-6" style="background-color: #ffffff">
             <div class="d-flex justify-content-around mb-3 mt-1">
                 <img src="{{ viewContent.object.img.url }}" class="img-fluid">
@@ -58,10 +58,203 @@
         </div>
     </div>
 
+
+    <!-- Ability Feature Drag and Drop -->
+    {% for ability in viewContent.abilities %}
+    <div class="row mt-3">
+        <div class="col-12">
+            <div class="display-4">{{ ability.prettyName }} Features</div>
+                <div class="box box-default box-solid">
+                    <div class="col-12">
+                        <div id="associated-events-{{ ability.id }}" class="box box-default box-solid">
+                            <div class="box-header with-border">
+                                <strong>Currently Associated Features</strong>
+                            </div>
+                            <div class="box-body" id="associated-events-{{ ability.id }}-list">
+                                <div class="row">
+                                    {% for behavior in ability.assignedBehaviors %}
+                                        <div class="col-3">
+                                            <div data-tag_id="{{ behavior.id }}" data-ability_id="{{ ability.id }}" class="external-event" style="background-color: {{ behavior.color.colorHex }}">{{ behavior.behavior }}</div>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="box box-default box-solid">
+                    <div class="col-12">
+                        <div id="external-events-{{ ability.id }}" class="box box-default box-solid">
+                            <div class="box-header with-border">
+                                <strong>Available Features</strong>
+                            </div>
+
+                            <div id="external-events-{{ ability.id }}-list" class="box-body">
+                                <div class="row">
+                                {% for behavior in ability.availableBehaviors %}
+                                    <div class="col-3">
+                                        <div data-tag_id="{{ behavior.id }}" data-ability_id="{{ ability.id }}" class="external-event" style="background-color: {{ behavior.color.colorHex }}">{{ behavior.behavior }}</div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+        {% endfor %}
+
+
+    <!-- Literally a map around Austin,TX w/ some points -->
     <div class="row">
         <div class="col-12" id="map"></div>
     </div>
 </div>
+
+
+{% for ability in viewContent.abilities %}
+<script type="text/javascript">
+    $(function() {
+
+        // initialize the external events
+        function init_events(ele) {
+            ele.each(function () {
+
+                var eventObject = {
+                    title: $.trim($(this).text())
+                }
+
+                // store the Event Object in the DOM element so we can get to it later
+                $(this).data('eventObject', eventObject)
+
+                // make the event draggable using jQuery UI
+                $(this).draggable({
+                    zIndex          : 1070,
+                    revert          : true, // will cause the event to go back to its
+                    revertDuration  :0  //      original position after the drag
+                })
+            })
+        }
+
+        init_events($('#external-events-{{ ability.id }} div.external-event'))
+        init_events($('#associated-events-{{ ability.id }} div.external-event'))
+
+        // Make target canvas draggable
+        $("#associated-events-{{ ability.id }}").droppable({
+            drop:function(e,source){
+
+                $("#associated-events-{{ ability.id }}-list").append(source.draggable);
+                // Now, get all associated events and PATCH transient with them
+                var tag_ids = $("#associated-events-{{ ability.id }}-list").children("div").map(function() {return $(this).attr("data-tag_id")})
+                var ability_id = $("#associated-events-{{ ability.id }}-list").children("div").map(function() {return $(this).attr("data-ability_id")})
+
+
+                var base_url = window.location.protocol + "//" + window.location.hostname
+                var port = window.location.port
+                if (port != "") {
+                    base_url = base_url + ":" + port
+                }
+
+                var tag_list = []
+                for (i=0; i< tag_ids.length; i++) {
+                    tag_list.push(tag_ids[i])
+                }
+
+                var ability_target = "{% url 'add_ability_behaviors' %}"
+                var api_url = base_url + ability_target
+
+                var patchData = { 
+                        "behaviorIDs": tag_list,
+                        "abilityID": ability_id[0],
+                 }
+                var jsonData = JSON.stringify(patchData)
+
+                console.log(jsonData)
+
+                $.ajax({
+                    type: "POST",
+                    url: api_url,
+                    csrfmiddlewaretoken: "{{ csrf_token }}",
+                    data: jsonData,
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    success: function(data, textStatus, jqXHR) {
+                        if (textStatus == "success") {
+
+                        } else {
+                            alert("AbilityBehavior may not have been updated -- please use the admin or contact Jon Brown")
+                        }
+                    },
+                    error: function(XMLHttpRequest, textStatus, errorThrown) {
+                        // alert("Transient Tag may not have been created -- please use YSE Admin and contact Dave C or David J.")
+                        alert("Error: " + String(errorThrown) + String(textStatus) + String(XMLHttpRequest.responseText));
+                    }
+                });
+
+            }
+        });
+
+        // Make target canvas draggable
+        $("#external-events-{{ ability.id }}").droppable({
+            drop:function(e,source){
+
+                $("#external-events-{{ ability.id }}-list").append(source.draggable);
+                // Now, get all associated events and PATCH transient with them
+                var tag_ids = $("#external-events-{{ ability.id }}-list").children("div").map(function() {return $(this).attr("data-tag_id")})
+                var ability_id = $("#external-events-{{ ability.id }}-list").children("div").map(function() {return $(this).attr("data-ability_id")})
+
+
+                var base_url = window.location.protocol + "//" + window.location.hostname
+                var port = window.location.port
+                if (port != "") {
+                    base_url = base_url + ":" + port
+                }
+
+                var tag_list = []
+                for (i=0; i< tag_ids.length; i++) {
+                    tag_list.push(tag_ids[i])
+                }
+
+                var ability_target = "{% url 'remove_ability_behaviors' %}"
+                var api_url = base_url + ability_target
+
+                var patchData = { 
+                        "behaviorIDs": tag_list,
+                        "abilityID": ability_id[0],
+                 }
+                var jsonData = JSON.stringify(patchData)
+
+                console.log(jsonData)
+
+                $.ajax({
+                    type: "POST",
+                    url: api_url,
+                    csrfmiddlewaretoken: "{{ csrf_token }}",
+                    data: jsonData,
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    success: function(data, textStatus, jqXHR) {
+                        if (textStatus == "success") {
+
+                        } else {
+                            alert("AbilityBehavior may not have been updated -- please use the admin or contact Jon Brown")
+                        }
+                    },
+                    error: function(XMLHttpRequest, textStatus, errorThrown) {
+                        // alert("Transient Tag may not have been created -- please use YSE Admin and contact Dave C or David J.")
+                        alert("Error: " + String(errorThrown) + String(textStatus) + String(XMLHttpRequest.responseText));
+                    }
+                });
+
+            }
+        });
+
+    })
+</script>
+{% endfor %}
+
 
 {% endblock %}
 

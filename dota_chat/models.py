@@ -30,6 +30,12 @@ class HeroRoles(models.Model):
     def __str__(self):
         return str(self.role)
 
+class AbilityBehaviorColors(models.Model):
+    colorHex = models.CharField(max_length=10,unique=True)
+    colorDescriptiveName = models.CharField(max_length=64,blank=True)
+    def __str__(self):
+        return self.colorHex
+
 # not necessariliy complete, also need to populate
 class AbilityBehaviors(models.Model):
     ''' Static model for ability behaviors '''
@@ -46,10 +52,48 @@ class AbilityBehaviors(models.Model):
                          ('Instant Cast','Instant Cast'),
                          ('Autocast','Autocast'),
                          ('Hidden','Hidden'),
-                         ('Attack Modifier','Attack Modifier')
-
+                         ('Talent','Talent'),
+                         ('Attack Modifier','Attack Modifier'),
+                         ('Disable','Disable'),
+                         ('Channel Cancelling','Channel Cancelling'),
+                         ('Hard Disable','Hard Disable'),
+                         ('Channeled','Channeled'),
+                         ('Channeled Cast','Channeled Cast'),
+                         ('Core Spell','Core Spell'),
+                         ('Grants Self Physical Immunity','Grants Self Physical Immunity'),
+                         ('Grants Self Magic Immunity','Grants Self Magic Immunity'),
+                         ('Grants Ally Physical Immunity','Grants Ally Physical Immunity'),
+                         ('Grants Ally Magic Immunity','Grants Ally Magic Immunity'),
+                         ('Grants Enemy Physical Immunity','Grants Enemy Physical Immunity'),
+                         ('Grants Enemy Magic Immunity','Grants Enemy Magic Immunity'),
+                         ('Bash','Bash'),
+                         ('Root','Root'),
+                         ('Disarms Enemy','Disarms Enemy'),
+                         ('Disarms Ally','Disarms Ally'),
+                         ('Basic Dispel Self','Basic Dispel Self'),
+                         ('Basic Dispel Ally','Basic Dispel Ally'),
+                         ('Basic Dispel Enemy','Basic Dispel Enemy'),
+                         ('Strong Dispel Self','Strong Dispel Self'),
+                         ('Strong Dispel Ally','Strong Dispel Ally'),
+                         ('Strong Dispel Enemy','Strong Dispel Enemy'),
+                         ('Grants Invisibility','Grants Invisibility'),
+                         ('Grants True Sight','Grants True Sight'),
+                         ('Enhanced By Scepter','Enhanced By Scepter'),
+                         ('Granted By Scepter','Granted By Scepter'),
+                         ('Heals Teammates','Heals Teammates'),
+                         ('AOE Denial','AOE Denial'),
+                         ('Skill Shot','Skill Shot'),
+                         ('Repositions Enemies','Repositions Enemies'),
+                         ('Repositions Allies','Repositions Allies'),
+                         ('Mutes','Mutes'),
+                         ('Provides Miss Chance','Provides Miss Chance'),
+                         ('Provides Armor', 'Provides Armor'),
+                         ('Provides Armor Reduction', 'Provides Armor Reduction')
         )
+
     behavior = models.CharField(max_length=50,unique=True,choices=behavior_choices)
+    color = models.ForeignKey(AbilityBehaviorColors, 
+                                on_delete=models.CASCADE, null=True, blank=True)
 
     def __str__(self):
         return str(self.behavior)
@@ -85,13 +129,6 @@ class HeroAbility(HeroAbilityBaseModel):
         verbose_name_plural = 'HeroAbilities'
 
     abilitySlot = models.IntegerField(null=True,blank=True)
-    isChannelCancelling = models.BooleanField(default=False)
-    isHardDisable = models.BooleanField(default=False)
-    isDisable = models.BooleanField(default=False)
-    isChanneled = models.BooleanField(default=False)
-    isCoreSpell = models.BooleanField(default=False)
-    isAghsSpell = models.BooleanField(default=False)
-    isTalent = models.BooleanField(default=False)
     img = models.ImageField(null=True,blank=True)
 
     @property
@@ -105,6 +142,20 @@ class HeroAbility(HeroAbilityBaseModel):
     def ability_as_list(self):
         splitStr = self.description.split('\n')
         return splitStr
+
+    @property
+    def assignedBehaviors(self):
+        return self.behavior.all().order_by('behavior')
+
+    @property
+    def availableBehaviors(self):
+        availableBehaviors = list(AbilityBehaviors.objects.all().order_by('behavior'))
+        assignedBehaviors = self.assignedBehaviors
+        for behavior in assignedBehaviors:
+            if behavior in availableBehaviors:
+                availableBehaviors.remove(behavior)
+        return availableBehaviors
+    
     
 
 
@@ -244,10 +295,14 @@ class Match(models.Model):
         verbose_name_plural = 'Matches'
     matchID = models.BigIntegerField(unique=True)
     match_seq_num = models.BigIntegerField(unique=True)
+    game_mode = models.IntegerField(null=True)
+    region = models.IntegerField(null=True)
+    patch = models.IntegerField(null=True)
     start_time = models.BigIntegerField()
     duration = models.IntegerField()
     human_players = models.IntegerField()
     radiant_win = models.BooleanField()
+    bans = models.ManyToManyField(Hero)
 
     def __str__(self):
         return str(self.matchID)

@@ -66,20 +66,36 @@ def query_opendota_api_route_args(routeArgs,**kwargs):
 
 
 
-def winRatePlot(request,hero_id):
+def winRatePlot(request,hero_id,USE_PRO=True):
 
     # assemble data
     heroInstance = models.Hero.objects.get(valveID=hero_id)
-    wins = len(models.Player.objects.filter(
-                        hero=heroInstance,
-                        wonMatch=True
+
+    # query OD for W/L/P/B
+    args = ['heroStats']
+    heroStatsList = query_opendota_api_route_args(args,sleepTime=0.)
+
+    if USE_PRO:
+        targetID = heroInstance.valveID
+
+        for heroEntry in heroStatsList:
+            if heroEntry['hero_id'] == targetID:
+                picks = heroEntry['pro_pick']
+                bans = heroEntry['pro_ban']
+                wins = heroEntry['pro_win']
+                losses = picks - wins
+                break
+    else:
+        wins = len(models.Player.objects.filter(
+                            hero=heroInstance,
+                            wonMatch=True
+                        )
                     )
-                )
-    losses = len(models.Player.objects.filter(
-                        hero=heroInstance,
-                        wonMatch=False
+        losses = len(models.Player.objects.filter(
+                            hero=heroInstance,
+                            wonMatch=False
+                        )
                     )
-                )
 
     xLabels = ['Win','Loss']
     colors = ['#24ba1c','#ba1c1c']

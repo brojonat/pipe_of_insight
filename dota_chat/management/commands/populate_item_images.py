@@ -66,6 +66,6 @@ class Command(BaseCommand):
                 except Exception as e:
                     self.stdout.write(
                         self.style.ERROR('Failed to store Item data: {}'.format(str(e))))
-                    pdb.set_trace()
+                    #pdb.set_trace()
 
 

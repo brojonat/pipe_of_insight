@@ -1,0 +1,84 @@
+{% extends "dota_chat/hero/header_hero_detail.html" %}
+{% load staticfiles %}
+
+{% block content %}
+
+    <!-- General info about the Target -->
+
+<div class="container">
+    <div class="row">
+        <nav aria-label="breadcrumb" class="flex-fill">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Dashboard</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'hero_list_view' %}">Heros</a></li>
+                <li class="breadcrumb-item active" aria-current="page">{{ viewContent.object.prettyName }}</a></li>
+            </ol>
+        </nav>
+    </div>
+
+    <div class="row mb-3">
+
+        <!-- Some leftard content (plots etc) -->
+        <div class="col-2" id="winRatePlot"></div>
+        <div class="col-4" id="winLossChatPlot"></div>
+
+        <!-- Rightward content (hero panel stuff) -->
+        <div class="col-6" style="background-color: #ffffff">
+            <div class="d-flex justify-content-around mb-3 mt-1">
+                <img src="{{ viewContent.object.img.url }}" class="img-fluid">
+            </div>
+
+            <div class="d-flex justify-content-center">
+                <h5>{{ viewContent.object.prettyName }} Abilities</h5>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col d-flex justify-content-around" style="flex-wrap: wrap;">
+                    {% for ability in viewContent.abilities  %}
+                        {% if ability.img %}
+                                    <img src="{{ ability.img.url }}" class="img-fluid mb-2" data-toggle="popover" data-placement="bottom" title="{{ ability.prettyName }}" data-content='{% include "dota_chat/hero/ability_popover_template.html" %}'>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Chat stuff-->
+        <div class="col" style="background-color: #efffc2">
+            <h5>Chat Log:</h5>
+            {% for player,chatLog in viewContent.chat.items %}
+                {% for chat in chatLog %}
+                    <p>{{ player }} said "{{ chat.1 }}" at {{ chat.0 }}</p>
+                {% endfor %}
+            {% endfor %}
+        </div>
+    </div>
+
+
+    <!-- Ability Feature Drag and Drop -->
+    <div class="row">
+        {% for ability in viewContent.abilities %}
+            <div class="col-12">
+                {{ ability.prettyName }}
+            </div>
+            {% for behavior in ability.behavior %}
+                <div class="col-12" style="background-color: {{ behavior.color_hex }}">
+                    {{ behavior.behavior }}
+                </div>
+            {% endfor %}
+        {% endfor %}
+    </div>
+
+
+    <!-- Literally a map around Austin,TX w/ some points -->
+    <div class="row">
+        <div class="col-12" id="map"></div>
+    </div>
+</div>
+
+{% endblock %}
+
