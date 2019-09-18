@@ -265,7 +265,6 @@ def dashboard(request):
 
 def addAbilityBehaviors(request):
     if request.method == 'POST':
-        pdb.set_trace()
         abilityDict = json.loads(request.body.decode('utf-8'))
         abilityID = abilityDict.get('abilityID')
         updatedBehaviorIDs = abilityDict.get('behaviorIDs')
