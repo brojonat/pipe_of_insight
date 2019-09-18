@@ -61,11 +61,13 @@ class Command(BaseCommand):
 
                     # fetch the default behaviors
                     coreBehavior = models.AbilityBehaviors.objects.get(behavior='Core Spell')
+                    hiddenBool = ability.behavior.filter(behavior='Hidden').exists()
 
                     # modify/add our custom features
                     ability.abilitySlot = abilitySlot
 
-                    if abilityStr != 'generic_hidden':
+
+                    if abilityStr != 'generic_hidden' and not hiddenBool:
                         ability.behavior.add(coreBehavior)
 
                     ability.save()
