@@ -69,7 +69,9 @@ class HeroDetailView(DetailView):
         for ability in allAbilities:
             isCoreSpell = ability.behavior.filter(behavior='Core Spell').exists()
             isAghsSpell = ability.behavior.filter(behavior='Granted By Scepter').exists()
-            if ability.img and (isCoreSpell or isAghsSpell):
+            isHidden = ability.behavior.filter(behavior='Hidden').exists()
+
+            if ability.img and (isCoreSpell or isAghsSpell) and not isHidden:
                 abilities.append(ability)
 
         context['abilities'] = abilities
