@@ -1,5 +1,10 @@
 *.ini
-*media*
-*static*
+*.log
+*media*/*
+*static*/*
+*/media*/*
+*/static*/*
 *.pyc
-*__pycache__*
+*__pycache__/*
+*/__pycache__*
+dota_chat/__pycache__*

@@ -59,11 +59,14 @@ class Command(BaseCommand):
                     # fetch the ability
                     ability = models.HeroAbility.objects.get(abilityName=abilityStr)
 
+                    # fetch the default behaviors
+                    coreBehavior = models.AbilityBehaviors.objects.get(behavior='Core Spell')
+
                     # modify/add our custom features
                     ability.abilitySlot = abilitySlot
 
                     if abilityStr != 'generic_hidden':
-                        ability.isCoreSpell = True
+                        ability.behavior.add(coreBehavior)
 
                     ability.save()
 
@@ -83,12 +86,15 @@ class Command(BaseCommand):
 
                     talentStr = talentDict['name']
 
+                    # fetch the default behaviors
+                    talentBehavior = models.AbilityBehaviors.objects.get(behavior='Talent')
+
                     # we store talents like abilities
                     ability = models.HeroAbility.objects.get(abilityName=talentStr)
 
                     # modify/add our custom features
                     ability.abilitySlot = talentSlot
-                    ability.isTalent = True
+                    ability.behavior.add(talentBehavior)
 
                     ability.save()
 
