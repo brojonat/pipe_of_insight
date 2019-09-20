@@ -61,10 +61,17 @@
         .githubbutton.pill {
             border-radius: 50em;
         }
+
+        .ui-autocomplete {
+            max-height: 200px;
+            overflow-y: auto;
+            /* prevent horizontal scrollbar */
+            overflow-x: hidden;
+        }
     </style>
 
 
-<!--     <link href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.css" rel="stylesheet" type="text/css" /> -->
+    <link href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.css" rel="stylesheet" type="text/css" />
 
     <!-- Load the cookie stuff -->    
     <script src="https://cdn.jsdelivr.net/npm/js-cookie@2/src/js.cookie.min.js"></script>
@@ -86,6 +93,21 @@
                  xhr.setRequestHeader("X-CSRFToken", csrftoken);
              }
             }
+        });
+
+        $(document).ready(function(){ 
+            $("#userSearch").autocomplete({
+                source: '{% url "dynamic_user_search" %}',
+                minLength: 3,
+                open: function(){
+                    setTimeout(function () {
+                        $('.ui-autocomplete').css('z-index', 99);
+                    }, 0);
+                },
+                select: function(event, ui) { 
+                    $("#userSearch").val(ui.item.label);
+                }
+              });
         });
 
     </script>

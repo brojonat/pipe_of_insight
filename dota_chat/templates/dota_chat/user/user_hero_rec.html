@@ -1,0 +1,25 @@
+{% extends "dota_chat/user/header_user_list.html" %}
+{% load django_tables2 %}
+{% load staticfiles %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <nav class="flex-fill" aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Dashboard</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'user_list_view' %}">Users</a></li>
+                <li class="breadcrumb-item active" aria-current="page">{{ viewContent.personaname_steamID }}</a></li>
+            </ol>
+        </nav>
+    </div>
+
+    <div class="row">
+        <!-- Chat stuff-->
+        <div class="col-12 mb-3">
+            {{ viewContent.personaname_steamID }} you should play <a href="{%url 'hero_detail_view' viewContent.winningestHero.slug %}">{{ viewContent.winningestHero }}</a> to have the best chance of winning, and <a href="{%url 'hero_detail_view' viewContent.sentimentHero.slug %}">{{ viewContent.sentimentHero }}</a> for the best experience.
+        </div>
+
+    </div>
+</div>
+{% endblock %}

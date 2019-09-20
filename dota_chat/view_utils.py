@@ -234,10 +234,19 @@ def make_histogram_plot_only(title,hist,edges,xlabel=None,ylabel=None):
     #p.line(x, pdf, line_color="#ff8888", line_width=4, alpha=0.7, legend="PDF")
     #p.line(x, cdf, line_color="orange", line_width=2, alpha=0.7, legend="CDF")
 
-    bokehAx.title.text_font_size = '15pt'
+    bokehAx.title.text_font_size = '18pt'
+
+    bokehAx.xaxis.axis_label_text_font_style = 'normal'
+    bokehAx.xaxis.axis_label_text_font_size = '15pt'
+    bokehAx.xaxis.axis_label_text_font_size = '15pt'
+    bokehAx.xaxis.major_label_text_font_size = '15pt'
+
+    bokehAx.yaxis.axis_label_text_font_style = 'normal'
+    bokehAx.yaxis.axis_label_text_font_size = '15pt'
+    bokehAx.yaxis.axis_label_text_font_size = '15pt'
+    bokehAx.yaxis.major_label_text_font_size = '15pt'
     bokehAx.y_range.start = 0
-    #p.legend.location = "center_right"
-    #p.legend.background_fill_color = "#fefefe"
+
     bokehAx.xaxis.axis_label = xlabel
     bokehAx.yaxis.axis_label = ylabel
     bokehAx.grid.grid_line_color="white"
@@ -256,14 +265,18 @@ def temporal_histograms(request):
     # Start times
     hist, edges = np.histogram(startTimes, density=False, bins=50)
     x = np.linspace(np.min(startTimes),np.max(startTimes),1000)
-    p1 = make_histogram_plot_only('Match Start', hist, edges,
-                                    xlabel='some fucked up offset',ylabel='Count')
+    p1 = make_histogram_plot_only(
+                'Match Start', hist, edges,
+                xlabel='some arbitrary offset',
+                ylabel='Relative Count')
 
     # Duration times
     hist, edges = np.histogram(durationTimes, density=False, bins=50)
     x = np.linspace(np.min(durationTimes),np.max(durationTimes),1000)
-    p2 = make_histogram_plot_only('Match Duration', hist, edges,
-                                    xlabel='Duration [minutes]',ylabel='Count')
+    p2 = make_histogram_plot_only(
+                'Match Duration', hist, edges,
+                xlabel='Duration [minutes]',
+                ylabel='Relative Count')
 
     bokehAx = gridplot([p1,p2], 
                 ncols=2, sizing_mode='stretch_width', toolbar_location=None)
@@ -319,11 +332,19 @@ def hero_popularity_histogram(request):
             )
         )
 
-    bokehAx.title.text_font_size = '15pt'
+    bokehAx.title.text_font_size = '18pt'
     bokehAx.xgrid.grid_line_color = None
-    bokehAx.yaxis.axis_label = 'Count'
+    bokehAx.yaxis.axis_label_text_font_style = 'normal'
+    bokehAx.yaxis.axis_label_text_font_size = '16pt'
     bokehAx.xaxis.major_label_orientation = np.pi/2.
+
     bokehAx.y_range.start = 0
+    bokehAx.yaxis.axis_label = 'Relative Count'
+    bokehAx.yaxis.axis_label_text_font_style = 'normal'
+    bokehAx.yaxis.axis_label_text_font_size = '15pt'
+    bokehAx.yaxis.axis_label_text_font_size = '15pt'
+    bokehAx.yaxis.major_label_text_font_size = '15pt'
+
     plotResponse = file_html(bokehAx,CDN,'hist')
 
     return HttpResponse(plotResponse)
@@ -342,7 +363,6 @@ def region_histogram(request):
         if qsDict['region'] is not None:
             regionKeyList.append(qsDict['region'])
             regionList.append(regionDict[str(qsDict['region'])])
-            print(qsDict['region'], regionDict[str(qsDict['region'])] )
             countList.append(qsDict['count'])
 
     # sort
@@ -374,16 +394,17 @@ def region_histogram(request):
             )
         )
 
-    bokehAx.title.text_font_size = '15pt'
+    bokehAx.title.text_font_size = '18pt'
 
     bokehAx.xgrid.grid_line_color = None
     bokehAx.xaxis.major_label_orientation = np.pi/2./2.
-    bokehAx.xaxis.axis_label_text_font_size = '16pt'
-    bokehAx.xaxis.major_label_text_font_size = '13pt'
+    bokehAx.xaxis.axis_label_text_font_size = '15pt'
+    bokehAx.xaxis.major_label_text_font_size = '15pt'
 
-    bokehAx.yaxis.axis_label = 'Count'
+    bokehAx.yaxis.axis_label = 'Relative Count'
     bokehAx.yaxis.axis_label_text_font_style = 'normal'
-    bokehAx.yaxis.axis_label_text_font_size = '16pt'
+    bokehAx.yaxis.axis_label_text_font_size = '15pt'
+    bokehAx.yaxis.major_label_text_font_size = '15pt'
     bokehAx.y_range.start = 0
 
     plotResponse = file_html(bokehAx,CDN,'hist')

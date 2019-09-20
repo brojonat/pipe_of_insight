@@ -249,6 +249,7 @@ class Command(BaseCommand):
                 matchDict['start_time'] = match.get('start_time')
                 matchDict['game_mode'] = match.get('game_mode')
                 matchDict['region'] = match.get('region')
+                matchDict['cluster'] = match.get('cluster')
                 matchDict['patch'] = match.get('patch')
                 matchDict['picks_bans'] = match.get('picks_bans')
                 matchDict['duration'] = match.get('duration')

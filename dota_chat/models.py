@@ -297,6 +297,7 @@ class Match(models.Model):
     match_seq_num = models.BigIntegerField(unique=True)
     game_mode = models.IntegerField(null=True)
     region = models.IntegerField(null=True)
+    cluster = models.IntegerField(null=True)
     patch = models.IntegerField(null=True)
     start_time = models.BigIntegerField()
     duration = models.IntegerField()

@@ -1,4 +1,5 @@
 import os,sys,shutil,pdb,glob,logging,datetime,tarfile,json,copy
+import requests
 import numpy as np 
 
 from . import models as models
@@ -175,7 +176,7 @@ class PlayerDetailView(DetailView):
 class UserListView(ListView):
     ''' ListView for Steam users '''
     model = models.SteamUser
-    template_name = 'dota_chat/user/user_list_view.html'
+    template_name = 'dota_chat/user/user_list_search.html'
     context_object_name = 'viewContent'
 
     def get_context_data(self,**kwargs):
@@ -310,3 +311,56 @@ def removeAbilityBehaviors(request):
             return JsonResponse({'success': True})
         except Exception as e:
             return JsonResponse({'success': False,'errText':str(e)})
+
+def dynamic_user_search(request):
+    if request.is_ajax():
+        q = request.GET.get('term', '')
+
+        apiURLBaseStr = settings.OPENDOTA_API_URL
+        apiKey = settings.OPENDOTA_API_KEY
+        queryStr = '/'.join([apiURLBaseStr,'search'])
+
+        params = {
+            'api_key': apiKey,
+            'q':q
+        }
+        queryRes = requests.get(queryStr,params=params)
+
+        # search the OpenDota API
+        results = []
+        for userDict in queryRes.json()[0:10]:
+            appStr = '{} (ACCT ID: {})'.format(userDict['personaname'],userDict['account_id'])
+            results.append(appStr)
+        data = json.dumps(results)
+    else:
+        data = 'fail'
+    mimetype = 'application/json'
+    return HttpResponse(data, mimetype)
+
+def user_search_redirect(request):
+    if request.method == 'POST':
+        try:
+            viewContent = {}
+            viewContent['user'] = request.user.username
+
+            personaname_steamID = request.POST['user']
+            account_id = personaname_steamID.split('(ACCT ID: ')[1][:-1]
+
+            viewContent['personaname_steamID'] = personaname_steamID
+
+            apiURLBaseStr = settings.OPENDOTA_API_URL
+            apiKey = settings.OPENDOTA_API_KEY
+            queryStr = '/'.join([apiURLBaseStr,'players',account_id,'heroes'])
+            params = {
+                'api_key': apiKey,
+            }
+            queryRes = requests.get(queryStr,params=params)
+            heroInstance = models.Hero.objects.get(valveID=queryRes.json()[0]['hero_id'])
+
+            viewContent['winningestHero'] = heroInstance
+            viewContent['sentimentHero'] = heroInstance
+
+        except models.SteamUser.DoesNotExist:
+            url = reverse('user_list_view')
+        return render(request, 'dota_chat/user/user_hero_rec.html', {'viewContent': viewContent})
+

@@ -57,6 +57,9 @@ urlpatterns_functions = [
 urlpattern_lists = [
     re_path(r'^addAbilityBehaviors/$', views.addAbilityBehaviors, name='add_ability_behaviors'),
     re_path(r'^removeAbilityBehaviors/$', views.removeAbilityBehaviors, name='remove_ability_behaviors'),
+    re_path(r'^dynamic_user_search/', views.dynamic_user_search,name='dynamic_user_search'),
+    re_path(r'^user_search_redirect/', views.user_search_redirect,name='user_search_redirect'),
+
 ]
 
 urlpatterns += urlpatterns_functions
