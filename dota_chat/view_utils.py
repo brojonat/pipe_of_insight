@@ -321,7 +321,7 @@ def hero_popularity_histogram(request):
     bokehAx.title.text_font_size = '15pt'
     bokehAx.xgrid.grid_line_color = None
     bokehAx.yaxis.axis_label = 'Count'
-    bokehAx.xaxis.major_label_orientation = np.pi/2.
+    bokehAx.xaxis.major_label_orientation = np.pi/2./2.
     bokehAx.y_range.start = 0
     plotResponse = file_html(bokehAx,CDN,'hist')
 
