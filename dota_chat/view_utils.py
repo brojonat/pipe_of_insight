@@ -230,7 +230,7 @@ def make_histogram_plot_only(title,hist,edges,xlabel=None,ylabel=None):
 
     bokehAx = bp.figure(title=title, tools='', background_fill_color="#fafafa")
     bokehAx.quad(top=hist, bottom=0, left=edges[:-1], right=edges[1:],
-           fill_color=cc.bgy[100], line_color="white", alpha=0.5)
+           fill_color=cc.bgy[100], line_color="white")
     #p.line(x, pdf, line_color="#ff8888", line_width=4, alpha=0.7, legend="PDF")
     #p.line(x, cdf, line_color="orange", line_width=2, alpha=0.7, legend="CDF")
 
@@ -303,7 +303,8 @@ def hero_popularity_histogram(request):
 
 
     bokehAx = bp.figure(x_range=heroList, sizing_mode='stretch_width', 
-                        toolbar_location=None, title="Hero Popularity")
+                        toolbar_location='right', title='Hero Popularity',
+                        tools='pan,wheel_zoom,box_zoom,reset')
     bokehAx.vbar(x='heroList', top='counts', width=0.9, 
                  source=source,
                  line_color='white', 
@@ -321,7 +322,7 @@ def hero_popularity_histogram(request):
     bokehAx.title.text_font_size = '15pt'
     bokehAx.xgrid.grid_line_color = None
     bokehAx.yaxis.axis_label = 'Count'
-    bokehAx.xaxis.major_label_orientation = np.pi/2./2.
+    bokehAx.xaxis.major_label_orientation = np.pi/2.
     bokehAx.y_range.start = 0
     plotResponse = file_html(bokehAx,CDN,'hist')
 
