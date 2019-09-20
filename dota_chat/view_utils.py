@@ -265,11 +265,14 @@ def temporal_histograms(request):
     startTimes = np.array(startTimes)
     durationTimes = np.array(durationTimes) / 60.
 
+    startTimes = startTimes - startTimes.min()
+    startTimes = startTimes / 60. / 60.
+
     # Start times
     hist, edges = np.histogram(startTimes, density=False, bins=48)
     p1 = make_histogram_plot_only(
                 'Match Start', hist, edges,
-                xlabel='some arbitrary offset',
+                xlabel='Hour + const.',
                 ylabel='Relative Count')
 
     # Duration times
