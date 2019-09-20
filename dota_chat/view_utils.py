@@ -258,21 +258,22 @@ def make_histogram_plot_only(title,hist,edges,xlabel=None,ylabel=None):
 def temporal_histograms(request):
 
     # start times
-    allMatches = models.Match.objects.all()
-    startTimes = [match.start_time for match in allMatches]
-    durationTimes = [match.duration/60. for match in allMatches]
+    allMatches = models.Match.objects.values('start_time','duration').all()
+    startTimes = [match['start_time'] for match in allMatches]
+    durationTimes = [match['duration'] for match in allMatches]
+
+    startTimes = np.array(startTimes)
+    durationTimes = np.array(durationTimes) / 60.
 
     # Start times
-    hist, edges = np.histogram(startTimes, density=False, bins=50)
-    x = np.linspace(np.min(startTimes),np.max(startTimes),1000)
+    hist, edges = np.histogram(startTimes, density=False, bins=48)
     p1 = make_histogram_plot_only(
                 'Match Start', hist, edges,
                 xlabel='some arbitrary offset',
                 ylabel='Relative Count')
 
     # Duration times
-    hist, edges = np.histogram(durationTimes, density=False, bins=50)
-    x = np.linspace(np.min(durationTimes),np.max(durationTimes),1000)
+    hist, edges = np.histogram(durationTimes, density=False, bins=48)
     p2 = make_histogram_plot_only(
                 'Match Duration', hist, edges,
                 xlabel='Duration [minutes]',
