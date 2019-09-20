@@ -92,6 +92,8 @@ class HeroDetailView(DetailView):
                     chatLog[playerName].append(entry)
                 else:
                     chatLog[playerName] = [entry]
+            if len(chatLog) > 5:
+                break
         context['chat'] = chatLog
 
         context['allAbilityBehaviors'] = []
