@@ -48,6 +48,9 @@ urlpatterns_functions = [
     re_path(r'^winRatePlot/(?P<hero_id>[0-9]+)/$', view_utils.winRatePlot, name='win_rate_plot'),
     re_path(r'^winLossChatPlot/(?P<hero_id>[0-9]+)/$', view_utils.winLossChatPlot, name='win_loss_chat_plot'),
     re_path(r'^map/$', view_utils.map, name='map'),
+    re_path(r'^temporal_histograms/$', view_utils.temporal_histograms, name='temporal_histograms'),
+    re_path(r'^hero_popularity_histogram/$', view_utils.hero_popularity_histogram, name='hero_popularity_histogram'),
+    re_path(r'^region_histogram/$', view_utils.region_histogram, name='region_histogram'),
 
 ]
 

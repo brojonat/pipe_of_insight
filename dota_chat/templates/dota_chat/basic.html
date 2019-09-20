@@ -5,15 +5,23 @@
 {% block content %}
 
 <div class="container">
-    <p>What is this? Who are we? What's the point?</p>
-</div>
+    <div class="row">
+        <div class="col-12">
+            Links to lists:
+            <!-- Link to night ListView -->
+            <a class="btn btn-primary btn-sm" href='{% url "hero_list_view" %}'>Heros</a>
+            <a class="btn btn-primary btn-sm" href='{% url "player_list_view" %}'>Players</a>
+            <a class="btn btn-primary btn-sm" href='{% url "user_list_view" %}'>Users</a>
+        </div>
 
-<div class="container">
+        <div class="col-12 mt-3">
+            Here's some info about the current meta:
+        </div>
 
-<!-- Link to night ListView -->
-    <a class="btn btn-primary btn-sm" href='{% url "hero_list_view" %}'>Heros</a>
-    <a class="btn btn-primary btn-sm" href='{% url "player_list_view" %}'>Players</a>
-    <a class="btn btn-primary btn-sm" href='{% url "user_list_view" %}'>Users</a>
+        <div class="col-12" id="temporalHist"></div>
+        <div class="col-12 mt-3" id="regionHist"></div>
+        <div class="col-12 mt-3" id="heroPopularityHist"></div>
+
 
 </div>
 

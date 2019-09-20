@@ -100,6 +100,14 @@
     <!-- select all functionality -->
     <script type="text/javascript" >
 
+        function isEmpty(obj) {
+            for(var key in obj) {
+                if(obj.hasOwnProperty(key))
+                    return false;
+            }
+            return true;
+        }
+
         // ajax setup stuff
         function csrfSafeMethod(method) {
             // these HTTP methods do not require CSRF protection
@@ -116,17 +124,42 @@
         });
 
         $( document ).ready(function(){
+            // get the fields in the canvas FOV
+            $.ajax({
+                type : 'GET',
+                url: "{% url 'win_rate_plot' viewContent.object.valveID %}",
+                success : function(retData) {
+                    // now send the paperscript to draw the field (only if we got verts)
+                    if (!isEmpty(retData)) {
+                        var rows = $("#winRatePlot");
+                        rows.html(retData);
+                    }
+                }
+            })
 
-            // make the winRatePlot (other plots here too)
-            $.get("{% url 'win_rate_plot' viewContent.object.valveID %}").done(function(htmlresponse){
-                var rows = $("#winRatePlot");
-                $(rows).html(htmlresponse);
-            });
+            // get the fields in the canvas FOV
+            $.ajax({
+                type : 'GET',
+                url: "{% url 'win_loss_chat_plot' viewContent.object.valveID %}",
+                success : function(retData) {
+                    // now send the paperscript to draw the field (only if we got verts)
+                    if (!isEmpty(retData)) {
+                        var rows = $("#winLossChatPlot");
+                        rows.html(retData);
+                    }
+                }
+            })
 
-            $.get("{% url 'win_loss_chat_plot' viewContent.object.valveID %}").done(function(htmlresponse){
-                var rows = $("#winLossChatPlot");
-                $(rows).html(htmlresponse);
-            });
+            // // make the winRatePlot (other plots here too)
+            // $.get("{% url 'win_rate_plot' viewContent.object.valveID %}").done(function(htmlresponse){
+            //     var rows = $("#winRatePlot");
+            //     $(rows).html(htmlresponse);
+            // });
+
+            // $.get("{% url 'win_loss_chat_plot' viewContent.object.valveID %}").done(function(htmlresponse){
+            //     var rows = $("#winLossChatPlot");
+            //     $(rows).html(htmlresponse);
+            // });
 
             // select all tooltips
             $('[data-toggle="tooltip"]').tooltip();

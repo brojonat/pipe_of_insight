@@ -20,6 +20,12 @@
             crossorigin="anonymous"></script>
 
 
+    <link href='https://cdn.pydata.org/bokeh/release/bokeh-1.3.4.min.css' rel='stylesheet' type='text/css'>
+    <link href='https://cdn.pydata.org/bokeh/release/bokeh-widgets-1.3.4.min.css' rel='stylesheet' type='text/css'>
+    <script src='https://cdn.pydata.org/bokeh/release/bokeh-1.3.4.min.js'></script>
+    <script src='https://cdn.pydata.org/bokeh/release/bokeh-widgets-1.3.4.min.js'></script>
+
+
     <!--  Load bootstrap -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
@@ -87,6 +93,59 @@
              }
             }
         });
+
+        function isEmpty(obj) {
+            for(var key in obj) {
+                if(obj.hasOwnProperty(key))
+                    return false;
+            }
+            return true;
+        }
+
+
+        $( document ).ready(function(){
+            // get the fields in the canvas FOV
+            $.ajax({
+                type : 'GET',
+                url: "{% url 'temporal_histograms' %}",
+                success : function(retData) {
+                    // now send the paperscript to draw the field (only if we got verts)
+                    if (!isEmpty(retData)) {
+                        var rows = $("#temporalHist");
+                        rows.html(retData);
+                    }
+                }
+            })
+
+            // get the fields in the canvas FOV
+            $.ajax({
+                type : 'GET',
+                url: "{% url 'hero_popularity_histogram' %}",
+                success : function(retData) {
+                    // now send the paperscript to draw the field (only if we got verts)
+                    if (!isEmpty(retData)) {
+                        var rows = $("#heroPopularityHist");
+                        rows.html(retData);
+                    }
+                }
+            })
+
+            // get the fields in the canvas FOV
+            $.ajax({
+                type : 'GET',
+                url: "{% url 'region_histogram' %}",
+                success : function(retData) {
+                    // now send the paperscript to draw the field (only if we got verts)
+                    if (!isEmpty(retData)) {
+                        var rows = $("#regionHist");
+                        rows.html(retData);
+                    }
+                }
+            })
+
+        })
+
+        
 
     </script>
 

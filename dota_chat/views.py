@@ -26,10 +26,12 @@ from django.views.generic import View, ListView, DetailView
 from django.views.generic import UpdateView, DeleteView, CreateView
 from django.views.generic.base import ContextMixin
 from django.views.decorators.csrf import csrf_protect, ensure_csrf_cookie
-
 from django.shortcuts import render,redirect,get_object_or_404
 
 from django_tables2 import RequestConfig
+
+from bokeh.embed import server_document
+
 
 # Create your views here.
 
@@ -265,42 +267,46 @@ def dashboard(request):
 
 def addAbilityBehaviors(request):
     if request.method == 'POST':
-        abilityDict = json.loads(request.body.decode('utf-8'))
-        abilityID = abilityDict.get('abilityID')
-        updatedBehaviorIDs = abilityDict.get('behaviorIDs')
+        try:
+            abilityDict = json.loads(request.body.decode('utf-8'))
+            abilityID = abilityDict.get('abilityID')
+            updatedBehaviorIDs = abilityDict.get('behaviorIDs')
 
-        if abilityID is not None:
-            ability = models.HeroAbility.objects.get(id=abilityID)
-            currentBehaviors = ability.behavior.all()
-            currentBehaviorIDs = [behavior.id for behavior in currentBehaviors]
-        else:
-            currentBehaviorIDs = []
+            if abilityID is not None:
+                ability = models.HeroAbility.objects.get(id=abilityID)
+                currentBehaviors = ability.behavior.all()
+                currentBehaviorIDs = [behavior.id for behavior in currentBehaviors]
+            else:
+                currentBehaviorIDs = []
 
-        # add any that are in the current/updated list but not present
-        for behaviorID in updatedBehaviorIDs:
-            behavior = models.AbilityBehaviors.objects.get(id=behaviorID)
-            ability.behavior.add(behavior)
+            # add any that are in the current/updated list but not present
+            for behaviorID in updatedBehaviorIDs:
+                behavior = models.AbilityBehaviors.objects.get(id=behaviorID)
+                ability.behavior.add(behavior)
 
-        return JsonResponse({'success': True})
+            return JsonResponse({'success': True})
+        except Exception as e:
+            return JsonResponse({'success': False,'errText':str(e)})
 
 def removeAbilityBehaviors(request):
     if request.method == 'POST':
-        abilityDict = json.loads(request.body.decode('utf-8'))
-        abilityID = abilityDict.get('abilityID')
-        updatedBehaviorIDs = abilityDict.get('behaviorIDs')
+        try:
+            abilityDict = json.loads(request.body.decode('utf-8'))
+            abilityID = abilityDict.get('abilityID')
+            updatedBehaviorIDs = abilityDict.get('behaviorIDs')
 
-        if abilityID is not None:
-            ability = models.HeroAbility.objects.get(id=abilityID)
-            currentBehaviors = ability.behavior.all()
-            currentBehaviorIDs = [behavior.id for behavior in currentBehaviors]
-        else:
-            currentBehaviorIDs = []
+            if abilityID is not None:
+                ability = models.HeroAbility.objects.get(id=abilityID)
+                currentBehaviors = ability.behavior.all()
+                currentBehaviorIDs = [behavior.id for behavior in currentBehaviors]
+            else:
+                currentBehaviorIDs = []
 
-        # add any that are in the current/updated list but not present
-        for behaviorID in updatedBehaviorIDs:
-            behavior = models.AbilityBehaviors.objects.get(id=behaviorID)
-            ability.behavior.remove(behavior)
+            # add any that are in the current/updated list but not present
+            for behaviorID in updatedBehaviorIDs:
+                behavior = models.AbilityBehaviors.objects.get(id=behaviorID)
+                ability.behavior.remove(behavior)
 
-
-
-        return JsonResponse({'success': True})
+            return JsonResponse({'success': True})
+        except Exception as e:
+            return JsonResponse({'success': False,'errText':str(e)})
