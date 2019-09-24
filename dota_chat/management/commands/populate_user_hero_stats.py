@@ -88,7 +88,7 @@ class Command(BaseCommand):
                     outStr = 'Working on user {} out of about 300k'.format(userCount)
                     self.stdout.write(self.style.SUCCESS(outStr))
                 defaultName = 'STEAMID_{}'.format(user[userIDKey])
-                isValidUser = userInstance.valveID != ANON_ID
+                isValidUser = user[userIDKey] != ANON_ID
                 needsHeroStatData = not models.UserHeroStats.objects.filter(
                                             user__valveID=user[userIDKey]).exists()
 
@@ -165,5 +165,5 @@ class Command(BaseCommand):
 
             except Exception as e:
                 self.stdout.write(
-                    self.style.ERROR('Failed to log user stats {}: {}'.format(userInstance,str(e))))
+                    self.style.ERROR('Failed to log user stats {}: {}'.format(defaultName,str(e))))
 
