@@ -64,7 +64,9 @@ class Command(BaseCommand):
             allUserQS = models.Match.objects.values('player__valveID__valveID')
             allUserQS = allUserQS.filter(
                                 start_time__gte=start_query, 
-                                start_time__lte=end_query
+                                start_time__lte=end_query,
+                            ).exclude(
+                                player__valveID__valveID__in=models.UserHeroStats.objects.values_list('user__valveID',flat=True)
                             )
             allUserQS = allUserQS.distinct()
             #allUserCount = allUserQS.count()
