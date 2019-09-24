@@ -65,8 +65,6 @@ class Command(BaseCommand):
             allUserQS = allUserQS.filter(
                                 start_time__gte=start_query, 
                                 start_time__lte=end_query,
-                            ).exclude(
-                                player__valveID__valveID__in=models.UserHeroStats.objects.values_list('user__valveID',flat=True)
                             )
             allUserQS = allUserQS.distinct()
             allUserCount = allUserQS.count()
@@ -86,7 +84,7 @@ class Command(BaseCommand):
         for user in allUserQS.iterator():
             try:
                 userCount += 1
-                if userCount % 100 == 0:
+                if userCount % 10 == 0:
                     outStr = 'Working on user {} out of {}'.format(userCount,allUserCount)
                     self.stdout.write(self.style.SUCCESS(outStr))
                 defaultName = 'STEAMID_{}'.format(user[userIDKey])
