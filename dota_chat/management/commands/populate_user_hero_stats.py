@@ -49,6 +49,7 @@ class Command(BaseCommand):
 
         # init
         ANON_ID = 4294967295
+        batchLimit = 10
 
         date_min = options.get('date_min')
         date_max = options.get('date_max')
@@ -72,22 +73,28 @@ class Command(BaseCommand):
 
         # for each user, pull their stats
         lastAPICall = 0.
+        batchCount = 0
         userIDKey = 'player__valveID__valveID'
         for user in allUserQS.iterator():
             try:
-                userInstance = models.SteamUser.objects.get(id=user[userIDKey])
-                isValidUser = user[userIDKey] != ANON_ID
+                defaultName = 'STEAMID_{}'.format(user[userIDKey])
+                userInstance,userCreated = models.SteamUser.objects.get_or_create(
+                                                            valveID=user[userIDKey],
+                                                            defaults={'name':defaultName}
+                                    )
+                isValidUser = userInstance.valveID != ANON_ID
                 needsHeroStatData = not models.UserHeroStats.objects.filter(
                                             user=userInstance).exists()
 
                 if isValidUser and needsHeroStatData:
 
                     # rate limit
-                    while time.now() - lastAPICall < 0.05:
+                    while time.time() - lastAPICall < 0.05:
                         time.sleep(0.02)
 
                     statsList = getHeroStats(userInstance.valveID)
-                    lastAPICall = time.now()
+                    lastAPICall = time.time()
+                    userStatBulkCreateList = []
 
                     for heroStatDict in statsList:
                         # unpack
@@ -109,16 +116,39 @@ class Command(BaseCommand):
                                 'against_win': playerWinGames_against,
                             }
                         # store
-                        hsInstance,hsCreated = models.UserHeroStats.objects.get_or_create(
-                                                        user=userInstance,
-                                                        hero=statHero,
-                                                        defaults=hsDefaultDict
-                                                    )
+                        hsInstance = models.UserHeroStats(
+                                        user = userInstance,
+                                        hero = statHero,
+                                        games = playerNGames,
+                                        win = playerWinGames,
+                                        with_games = playerNGames_with,
+                                        with_win = playerWinGames_with,
+                                        against_games = playerNGames_against,
+                                        against_win = playerWinGames_against
+                            )
+                        userStatBulkCreateList.append(hsInstance)
+
+                    batchCount += 1
+
+                    # now do the bulk insert, catching integrity errors
+                    if batchCount == batchLimit:
+                        batchCount = 0
+                        try:
+                            models.UserHeroStats.objects.bulk_create(userStatBulkCreateList)
+                        except IntegrityError:
+                            for obj in userStatBulkCreateList:
+                                try:
+                                    obj.save()
+                                except IntegrityError:
+                                    continue
+
+                    successStr = 'Successfully logged user stats {}'.format(userInstance)
+                    self.stdout.write(self.style.SUCCESS(successStr))
+                else:
+                    warnStr = 'Already have stats for {}'.format(defaultName)
+                    self.stdout.write(self.style.WARNING(warnStr))
 
 
-
-                successStr = 'Successfully logged user stats {}'.format(userInstance)
-                self.stdout.write(self.style.SUCCESS(successStr))
             except Exception as e:
                 self.stdout.write(
                     self.style.ERROR('Failed to log user stats {}: {}'.format(userInstance,str(e))))
