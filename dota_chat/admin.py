@@ -42,6 +42,9 @@ class PlayerAdmin(admin.ModelAdmin):
 class ChatAdmin(admin.ModelAdmin):
     raw_id_fields = ('player',)
 
+class UserHeroStatsAdmin(admin.ModelAdmin):
+    raw_id_fields = ('user',)
+
 
 
 
@@ -59,4 +62,6 @@ admin.site.register(models.Match)
 
 admin.site.register(models.Player,PlayerAdmin)
 admin.site.register(models.ChatEntry,ChatAdmin)
+
+admin.site.register(models.UserHeroStats,UserHeroStatsAdmin)
 

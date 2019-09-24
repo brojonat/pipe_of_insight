@@ -34,6 +34,22 @@ def slot2team(slot):
     else:
         return 'DIRE'
 
+def getHeroStats(account_id):
+    apiURLBaseStr = settings.OPENDOTA_API_URL
+    apiKey = settings.OPENDOTA_API_KEY
+    queryStr = '/'.join([apiURLBaseStr,'players',str(account_id),'heroes'])
+    params = {
+        'api_key': apiKey,
+    }
+    queryRes = requests.get(queryStr,params=params)
+    time.sleep(0.02)
+
+    if queryRes.status_code == 200:
+        return queryRes.json()
+    else:
+        return []
+
+
 def ParseChat(data):
     ''' Returns a list of chat entries (list of dicts) '''
     chatData = []
@@ -165,6 +181,7 @@ class Command(BaseCommand):
                     help='file of match IDs on S3 (e.g. dota2/match_dump_2019-09-01.txt')
         parser.add_argument('--verbose', action='store_true')
         parser.add_argument('--query', action='store_true')
+        parser.add_argument('--query-for-user-hero-stats',action='store_true')
 
         # Named (optional) arguments
         # parser.add_argument(
@@ -180,8 +197,11 @@ class Command(BaseCommand):
         bucket = 'brojonat.dota2'
         bucketKeyFile = options.get('bucket_key_file')
 
+
         VERBOSE = options.get('verbose')
         QUERY = options.get('query')
+        QUERY_FOR_USER_HERO_STATS = options.get('query_for_user_hero_stats')
+
         ANON_ID = 4294967295
         matchCount = 0
 
@@ -308,6 +328,38 @@ class Command(BaseCommand):
                                                                 matchID=matchInstance,
                                                                 defaults=playerDefaults
                             )
+
+                        isValidUser = userInstance.valveID != ANON_ID
+                        needsHeroStatData = not models.UserHeroStats.objects.filter(
+                                                        user=userInstance,
+                                                        hero=heroInstance).exists() # not exact but close
+                        if QUERY_FOR_USER_HERO_STATS and isValidUser and needsHeroStatData:
+                            statsList = getHeroStats(userInstance.valveID)
+                            for heroStatDict in statsList:
+                                # unpack
+                                statHero = models.Hero.objects.get(valveID=int(heroStatDict['hero_id']))
+                                playerNGames = heroStatDict['games']
+                                playerNGames_with = heroStatDict['with_games']
+                                playerNGames_against = heroStatDict['against_games']
+                                playerWinGames = heroStatDict['win']
+                                playerWinGames_with = heroStatDict['with_win']
+                                playerWinGames_against = heroStatDict['against_win']
+
+                                # defaults
+                                hsDefaultDict = {
+                                        'games': playerNGames,
+                                        'win': playerWinGames,
+                                        'with_games': playerNGames_with,
+                                        'with_win': playerWinGames_with,
+                                        'against_games': playerNGames_against,
+                                        'against_win': playerWinGames_against,
+                                    }
+                                # store
+                                hsInstance,hsCreated = models.UserHeroStats.objects.get_or_create(
+                                                                user=userInstance,
+                                                                hero=statHero,
+                                                                defaults=hsDefaultDict
+                                                            )
 
                         # finally, chat entry
                         for chat in playerEntry['chat']:

@@ -339,6 +339,26 @@ class Player(models.Model):
         self.slug = slugify(labelStr)
         super().save(*args, **kwargs)
 
+class UserHeroStats(models.Model):
+    ''' Model storing hero stats '''
+
+    class Meta:
+        unique_together = ('user','hero')
+        verbose_name_plural = 'UserHeroStats'
+
+    user = models.ForeignKey(SteamUser,on_delete=models.CASCADE)
+    hero = models.ForeignKey(Hero,on_delete=models.CASCADE)
+
+    games = models.IntegerField(default=0)
+    win = models.IntegerField(default=0)
+    with_games = models.IntegerField(default=0)
+    with_win = models.IntegerField(default=0)
+    against_games = models.IntegerField(default=0)
+    against_win = models.IntegerField(default=0)
+
+    def __str__(self):
+        return '{} {}'.format(self.user,self.hero)
+
 class ChatEntry(models.Model):
 
     class Meta:
