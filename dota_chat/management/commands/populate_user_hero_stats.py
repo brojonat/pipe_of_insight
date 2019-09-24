@@ -90,7 +90,7 @@ class Command(BaseCommand):
                 defaultName = 'STEAMID_{}'.format(user[userIDKey])
                 isValidUser = userInstance.valveID != ANON_ID
                 needsHeroStatData = not models.UserHeroStats.objects.filter(
-                                            user=userInstance).exists()
+                                            user__valveID=user[userIDKey]).exists()
 
                 if isValidUser and needsHeroStatData:
 
