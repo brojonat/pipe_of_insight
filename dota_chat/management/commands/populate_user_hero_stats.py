@@ -7,6 +7,7 @@ import boto3
 import numpy as np 
 import pandas as pd 
 
+from django.db.models import F
 from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
 import dota_chat.models as models
@@ -56,9 +57,12 @@ class Command(BaseCommand):
         if date_min and date_max:
             start_query = datetime.datetime.strptime(date_min,'%Y-%m-%d').timestamp()
             end_query = datetime.datetime.strptime(date_max,'%Y-%m-%d').timestamp()
-            allUsers = models.Match.objects.values('player__valveID__valveID').filter(
-                                        start_time__gte=start_query, 
-                                        start_time__lte=end_query).distinct()
+            allUserQS = models.Match.objects.values('player__valveID__valveID')
+            allUserQS = allUserQS.filter(
+                                start_time__gte=start_query, 
+                                start_time__lte=end_query
+                            )
+            allUserQS = allUserQS.distinct()
 
         # grab all users
         else:
@@ -68,12 +72,13 @@ class Command(BaseCommand):
 
         # for each user, pull their stats
         lastAPICall = 0.
-        for user in allUsers.iterator():
+        userIDKey = 'player__valveID__valveID'
+        for user in allUserQS.iterator():
             try:
-
-                isValidUser = user.valveID != ANON_ID
+                userInstance = models.SteamUser.objects.get(id=user[userIDKey])
+                isValidUser = user[userIDKey] != ANON_ID
                 needsHeroStatData = not models.UserHeroStats.objects.filter(
-                                            user=user).exists()
+                                            user=userInstance).exists()
 
                 if isValidUser and needsHeroStatData:
 
@@ -81,7 +86,7 @@ class Command(BaseCommand):
                     while time.now() - lastAPICall < 0.05:
                         time.sleep(0.02)
 
-                    statsList = getHeroStats(user.valveID)
+                    statsList = getHeroStats(userInstance.valveID)
                     lastAPICall = time.now()
 
                     for heroStatDict in statsList:
@@ -105,16 +110,16 @@ class Command(BaseCommand):
                             }
                         # store
                         hsInstance,hsCreated = models.UserHeroStats.objects.get_or_create(
-                                                        user=user,
+                                                        user=userInstance,
                                                         hero=statHero,
                                                         defaults=hsDefaultDict
                                                     )
 
 
 
-                successStr = 'Successfully logged user stats {}'.format(user)
+                successStr = 'Successfully logged user stats {}'.format(userInstance)
                 self.stdout.write(self.style.SUCCESS(successStr))
             except Exception as e:
                 self.stdout.write(
-                    self.style.ERROR('Failed to log user stats {}: {}'.format(user,str(e))))
+                    self.style.ERROR('Failed to log user stats {}: {}'.format(userInstance,str(e))))
 
