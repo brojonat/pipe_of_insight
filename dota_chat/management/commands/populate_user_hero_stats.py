@@ -67,6 +67,7 @@ class Command(BaseCommand):
                                 start_time__lte=end_query
                             )
             allUserQS = allUserQS.distinct()
+            allUserCount = allUserQS.count()
 
         # grab all users
         else:
@@ -77,10 +78,14 @@ class Command(BaseCommand):
         # for each user, pull their stats
         lastAPICall = 0.
         batchCount = 0
+        userCount = 0
         userIDKey = 'player__valveID__valveID'
 
         for user in allUserQS.iterator():
             try:
+                userCount += 1
+                outStr = 'Working on user {} out of {}'.format(userCount,allUserCount)
+                self.stdout.write(self.style.SUCCESS(outStr))
                 defaultName = 'STEAMID_{}'.format(user[userIDKey])
                 userInstance,userCreated = models.SteamUser.objects.get_or_create(
                                                             valveID=user[userIDKey],
