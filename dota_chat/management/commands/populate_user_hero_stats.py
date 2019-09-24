@@ -54,6 +54,9 @@ class Command(BaseCommand):
         date_min = options.get('date_min')
         date_max = options.get('date_max')
 
+        userStatBulkCreateList = []
+
+
         # grab users from a specific day
         if date_min and date_max:
             start_query = datetime.datetime.strptime(date_min,'%Y-%m-%d').timestamp()
@@ -75,6 +78,7 @@ class Command(BaseCommand):
         lastAPICall = 0.
         batchCount = 0
         userIDKey = 'player__valveID__valveID'
+
         for user in allUserQS.iterator():
             try:
                 defaultName = 'STEAMID_{}'.format(user[userIDKey])
@@ -94,7 +98,6 @@ class Command(BaseCommand):
 
                     statsList = getHeroStats(userInstance.valveID)
                     lastAPICall = time.time()
-                    userStatBulkCreateList = []
 
                     for heroStatDict in statsList:
                         # unpack
@@ -132,7 +135,6 @@ class Command(BaseCommand):
 
                     # now do the bulk insert, catching integrity errors
                     if batchCount == batchLimit:
-                        batchCount = 0
                         try:
                             models.UserHeroStats.objects.bulk_create(userStatBulkCreateList)
                         except IntegrityError:
@@ -141,6 +143,11 @@ class Command(BaseCommand):
                                     obj.save()
                                 except IntegrityError:
                                     continue
+
+                        # reset batch vars
+                        batchCount = 0
+                        userStatBulkCreateList = []
+
 
                     successStr = 'Successfully logged user stats {}'.format(userInstance)
                     self.stdout.write(self.style.SUCCESS(successStr))
