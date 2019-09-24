@@ -64,8 +64,7 @@ class Command(BaseCommand):
             allUserQS = models.Match.objects.values('player__valveID__valveID')
             allUserQS = allUserQS.filter(
                                 start_time__gte=start_query, 
-                                start_time__lte=end_query,
-                                player__valveID__userherostats__user__isnull=True
+                                start_time__lte=end_query
                             )
             allUserQS = allUserQS.distinct()
             allUserCount = allUserQS.count()
@@ -73,7 +72,7 @@ class Command(BaseCommand):
         # grab all users
         else:
             warnStr = 'For now, it\'s requried that you supply a date range'
-            self.stdout.write(self.style.SUCCESS(warnStr))
+            self.stdout.write(self.style.ERROR(warnStr))
             sys.exit(1)
 
         # for each user, pull their stats
@@ -82,7 +81,7 @@ class Command(BaseCommand):
         userCount = 0
         userIDKey = 'player__valveID__valveID'
 
-        for user in allUserQS.iterator():
+        for user in allUserQS.iterator(chunksize=100):
             try:
                 userCount += 1
                 if userCount % 10 == 0:
