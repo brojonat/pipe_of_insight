@@ -65,6 +65,7 @@ class Command(BaseCommand):
             allUserQS = allUserQS.filter(
                                 start_time__gte=start_query, 
                                 start_time__lte=end_query,
+                                player__valveID__userherostats__user__isnull=True
                             )
             allUserQS = allUserQS.distinct()
             allUserCount = allUserQS.count()
