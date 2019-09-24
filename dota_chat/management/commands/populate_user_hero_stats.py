@@ -81,7 +81,7 @@ class Command(BaseCommand):
         userCount = 0
         userIDKey = 'player__valveID__valveID'
 
-        for user in allUserQS.iterator(chunksize=100):
+        for user in allUserQS.iterator(chunk_size=100):
             try:
                 userCount += 1
                 if userCount % 10 == 0:
