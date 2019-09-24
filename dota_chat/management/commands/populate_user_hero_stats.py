@@ -67,7 +67,7 @@ class Command(BaseCommand):
                                 start_time__lte=end_query
                             )
             allUserQS = allUserQS.distinct()
-            allUserCount = allUserQS.count()
+            #allUserCount = allUserQS.count()
 
         # grab all users
         else:
@@ -84,7 +84,7 @@ class Command(BaseCommand):
         for user in allUserQS.iterator():
             try:
                 userCount += 1
-                outStr = 'Working on user {} out of {}'.format(userCount,allUserCount)
+                outStr = 'Working on user {} out of about 300k'.format(userCount)
                 #self.stdout.write(self.style.SUCCESS(outStr))
                 defaultName = 'STEAMID_{}'.format(user[userIDKey])
                 userInstance,userCreated = models.SteamUser.objects.get_or_create(
