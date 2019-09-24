@@ -20,7 +20,6 @@ def getHeroStats(account_id):
         'api_key': apiKey,
     }
     queryRes = requests.get(queryStr,params=params)
-    time.sleep(0.5)
 
     if queryRes.status_code == 200:
         return queryRes.json()
@@ -59,27 +58,19 @@ class Command(BaseCommand):
             start_query = datetime.datetime.strptime(date_min,'%Y-%m-%d').timestamp()
             end_query = datetime.datetime.strptime(date_max,'%Y-%m-%d').timestamp()
 
-            allMatches = models.Match.objects.values('player__valveID__valveID').filter(
+            allUsers = models.Match.objects.values('player__valveID__valveID').filter(
                                         start_time__gte=start_query, 
                                         start_time__lte=end_query).distinct()
-            pdb.set_trace()
-            for match in allMatches:
-                players = match.player_set.all()
-                for player in players:
-                    user = player.valveID
-                    if (player.matchID.start_time > start_query and 
-                        player.matchID.start_time < end_query and
-                        user not in users):
-                        users.add(user)
 
         # grab all users
         else:
-            users = models.SteamUser.objects.all()
-
-        pdb.set_trace()
+            warnStr = 'For now, it\'s requried that you supply a date range'
+            self.stdout.write(self.style.SUCCESS(warnStr))
+            sys.exit(1)
 
         # for each user, pull their stats
-        for user in users:
+        lastAPICall = 0.
+        for user in allUsers:
             try:
 
                 isValidUser = user.valveID != ANON_ID
@@ -87,7 +78,14 @@ class Command(BaseCommand):
                                             user=user).exists()
 
                 if isValidUser and needsHeroStatData:
+
+                    # rate limit
+                    while time.now() - lastAPICall < 0.05:
+                        time.sleep(0.02)
+
                     statsList = getHeroStats(user.valveID)
+                    lastAPICall = time.now()
+                    
                     for heroStatDict in statsList:
                         # unpack
                         statHero = models.Hero.objects.get(valveID=int(heroStatDict['hero_id']))
