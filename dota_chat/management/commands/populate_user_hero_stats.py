@@ -85,7 +85,7 @@ class Command(BaseCommand):
             try:
                 userCount += 1
                 outStr = 'Working on user {} out of {}'.format(userCount,allUserCount)
-                self.stdout.write(self.style.SUCCESS(outStr))
+                #self.stdout.write(self.style.SUCCESS(outStr))
                 defaultName = 'STEAMID_{}'.format(user[userIDKey])
                 userInstance,userCreated = models.SteamUser.objects.get_or_create(
                                                             valveID=user[userIDKey],
