@@ -88,15 +88,16 @@ class Command(BaseCommand):
                     outStr = 'Working on user {} out of about 300k'.format(userCount)
                     self.stdout.write(self.style.SUCCESS(outStr))
                 defaultName = 'STEAMID_{}'.format(user[userIDKey])
-                userInstance,userCreated = models.SteamUser.objects.get_or_create(
-                                                            valveID=user[userIDKey],
-                                                            defaults={'name':defaultName}
-                                    )
                 isValidUser = userInstance.valveID != ANON_ID
                 needsHeroStatData = not models.UserHeroStats.objects.filter(
                                             user=userInstance).exists()
 
                 if isValidUser and needsHeroStatData:
+
+                    userInstance,userCreated = models.SteamUser.objects.get_or_create(
+                                                                valveID=user[userIDKey],
+                                                                defaults={'name':defaultName}
+                                        )
 
                     # rate limit
                     while time.time() - lastAPICall < 0.05:
