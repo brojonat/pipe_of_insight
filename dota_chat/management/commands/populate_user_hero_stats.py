@@ -69,7 +69,7 @@ class Command(BaseCommand):
                                 player__valveID__valveID__in=models.UserHeroStats.objects.values_list('user__valveID',flat=True)
                             )
             allUserQS = allUserQS.distinct()
-            #allUserCount = allUserQS.count()
+            allUserCount = allUserQS.count()
 
         # grab all users
         else:
@@ -87,7 +87,7 @@ class Command(BaseCommand):
             try:
                 userCount += 1
                 if userCount % 100 == 0:
-                    outStr = 'Working on user {} out of about 300k'.format(userCount)
+                    outStr = 'Working on user {} out of {}'.format(userCount,allUserCount)
                     self.stdout.write(self.style.SUCCESS(outStr))
                 defaultName = 'STEAMID_{}'.format(user[userIDKey])
                 isValidUser = user[userIDKey] != ANON_ID
