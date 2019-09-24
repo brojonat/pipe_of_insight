@@ -54,10 +54,8 @@ class Command(BaseCommand):
 
         # grab users from a specific day
         if date_min and date_max:
-            users = set()
             start_query = datetime.datetime.strptime(date_min,'%Y-%m-%d').timestamp()
             end_query = datetime.datetime.strptime(date_max,'%Y-%m-%d').timestamp()
-
             allUsers = models.Match.objects.values('player__valveID__valveID').filter(
                                         start_time__gte=start_query, 
                                         start_time__lte=end_query).distinct()
@@ -70,7 +68,7 @@ class Command(BaseCommand):
 
         # for each user, pull their stats
         lastAPICall = 0.
-        for user in allUsers:
+        for user in allUsers.iterator():
             try:
 
                 isValidUser = user.valveID != ANON_ID
@@ -85,7 +83,7 @@ class Command(BaseCommand):
 
                     statsList = getHeroStats(user.valveID)
                     lastAPICall = time.now()
-                    
+
                     for heroStatDict in statsList:
                         # unpack
                         statHero = models.Hero.objects.get(valveID=int(heroStatDict['hero_id']))
