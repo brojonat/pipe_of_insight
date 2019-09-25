@@ -90,7 +90,8 @@ class Command(BaseCommand):
                 defaultName = 'STEAMID_{}'.format(user[userIDKey])
                 isValidUser = (user[userIDKey] != ANON_ID)
 
-                if models.UserHeroStats.objects.values('user__valveID').filter(user__valveID=user[userIDKey]).exists():
+                pdb.set_trace()
+                if models.SteamUser.objects.filter(valveID=user[userIDKey]).values('userherostats').exists():
                     needsHeroStatData = False
                 else:
                     needsHeroStatData = True 
