@@ -162,8 +162,8 @@ class Command(BaseCommand):
                     successStr = 'Successfully logged user stats {}'.format(userInstance)
                     self.stdout.write(self.style.SUCCESS(successStr))
                 else:
-                    warnStr = 'Already have stats for {}'.format(defaultName)
-                    self.stdout.write(self.style.WARNING(warnStr))
+                    #warnStr = 'Already have stats for {}'.format(defaultName)
+                    #self.stdout.write(self.style.WARNING(warnStr))
 
 
             except Exception as e:
