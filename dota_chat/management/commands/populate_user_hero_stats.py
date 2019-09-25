@@ -81,16 +81,19 @@ class Command(BaseCommand):
         userCount = 0
         userIDKey = 'player__valveID__valveID'
 
-        for user in allUserQS.iterator(chunk_size=100):
+        for user in allUserQS:
             try:
                 userCount += 1
                 if userCount % 10 == 0:
                     outStr = 'Working on user {} out of {}'.format(userCount,allUserCount)
                     self.stdout.write(self.style.SUCCESS(outStr))
                 defaultName = 'STEAMID_{}'.format(user[userIDKey])
-                isValidUser = user[userIDKey] != ANON_ID
-                needsHeroStatData = not models.UserHeroStats.objects.filter(
-                                            user__valveID=user[userIDKey]).exists()
+                isValidUser = (user[userIDKey] != ANON_ID)
+
+                if models.UserHeroStats.objects.values('user__valveID').filter(user__valveID=user[userIDKey]).exists():
+                    needsHeroStatData = False
+                else:
+                    needsHeroStatData = True 
 
                 if isValidUser and needsHeroStatData:
 
