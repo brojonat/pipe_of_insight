@@ -504,7 +504,6 @@ def predictHeroPick(cleanFormData):
                                         )
                     userDraftDict[key] = userInstance.valveID
                 except Exception as e:
-                    print(e)
                     userDraftDict[key] = ''
             else:
                 userDraftDict[key] = ''
@@ -535,11 +534,10 @@ def predictHeroPick(cleanFormData):
 
     # load model
     mlModel = pickle.load(open('dota_chat/ml_models/myXGBoostModel.pkl', 'rb'))
+    #mlModel = pickle.load(open('dota_chat/ml_models/myLogRegModel.pkl', 'rb'))
 
     # compute features (first do static features, then update with )
     featureDict_incomplete = compute_features(heroDraftDict,userDraftDict)
-
-    print('INCOMPLETE FEATURE DICT:\n{}'.format(featureDict_incomplete))
 
     # for each possible hero choice, calculate winProb
     allHeros = models.Hero.objects.all()
@@ -556,7 +554,6 @@ def predictHeroPick(cleanFormData):
                                 add_hero=hero,
                                 add_user=user
                             )
-
 
 
             # squash
@@ -579,8 +576,13 @@ def predictHeroPick(cleanFormData):
             relData = pd.Series(relDict)
             xDF.loc[0] = relData
 
+            #print('FEATURE DICT:\n{}'.format(xDF))
+
+
             # predict (what i really want here is model.proba)
-            winProb = mlModel.predict_proba(xDF.values)[0][0]
+            winProb = mlModel.predict_proba(xDF.values)[0][1]
+            #winProb = mlModel.predict_proba(xDF.values)[::,1]
+
             #print('{} has a winProb of {}'.format(hero.prettyName,winProb))
 
             winProbDict[hero.slug] = winProb
@@ -591,9 +593,7 @@ def predictHeroPick(cleanFormData):
         outStr += '{} has odds {}\n'.format(hero,prob)
     print(outStr)
 
-    # return the best win prob with some validation stuff
-    print('Best hero computation done!')
-    return HttpResponse('here is your best pick')
+    return sortList
 
 
 def update_features(featureDict_incomplete,add_hero,add_user=None):
@@ -646,17 +646,18 @@ def update_features(featureDict_incomplete,add_hero,add_user=None):
         newAverage /= 5.
         featureDict['RADIANT']['team_average_meta_win_rate'] = newAverage
 
-
     if add_user is not None and add_user != '':
 
         ### Adjust the features that are user specific averages ###
         user = models.SteamUser.objects.get(valveID=add_user)
         userStats = models.UserHeroStats.objects.get(user=user,hero=hero)
 
-        if userStats.games > 0:
+        if userStats.games > 20:
             userWinRate = 1.*userStats.win / userStats.games
         else:
             userWinRate = 0.
+
+        print('{} on {}, win rate {}'.format(user, hero, userWinRate))
 
         if 'team_n_public' in feature_list:
             featureDict['RADIANT']['team_n_public'] += 1
@@ -668,10 +669,10 @@ def update_features(featureDict_incomplete,add_hero,add_user=None):
             featureDict['RADIANT']['team_average_ngames_hero'] = newAverage
 
         if 'team_average_win_rate_hero' in feature_list:
-            newAverage = 4.*featureDict['RADIANT']['team_average_ngames_hero']
+            newAverage = 4.*featureDict['RADIANT']['team_average_win_rate_hero']
             newAverage += userWinRate
             newAverage /= 5.
-            featureDict['RADIANT']['team_average_ngames_hero'] = newAverage
+            featureDict['RADIANT']['team_average_win_rate_hero'] = newAverage
 
         ### Adjust the features that are team_top ###
         if ('team_top_n_games_hero' in feature_list and 
