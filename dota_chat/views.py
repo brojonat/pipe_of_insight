@@ -35,6 +35,8 @@ from django_tables2 import RequestConfig
 
 from bokeh.embed import server_document
 
+logger = logging.getLogger(__name__)
+
 
 # Create your views here.
 
@@ -93,7 +95,6 @@ class DraftView(FormView):
     def form_valid(self, form):
         # This method is called when valid form data has been POSTed.
         # It should return an HttpResponse.
-        print('Form has been validated!')
         sortList = view_utils.predictHeroPick(form.cleaned_data)
 
         bestHeroSlug = sortList[-1][0]

@@ -545,7 +545,7 @@ def predictHeroPick(cleanFormData):
     for hero in allHeros:
         if hero.slug not in pickedHeroList:
 
-            print('Working on {}'.format(hero.slug))
+            logger.info('Working on {}'.format(hero.slug))
             heroDraftDict['myTeamSlot1_hero'] = hero
 
 
@@ -583,7 +583,7 @@ def predictHeroPick(cleanFormData):
             winProb = mlModel.predict_proba(xDF.values)[0][1]
             #winProb = mlModel.predict_proba(xDF.values)[::,1]
 
-            #print('{} has a winProb of {}'.format(hero.prettyName,winProb))
+            logger.info('{} has a winProb of {}'.format(hero.prettyName,winProb))
 
             winProbDict[hero.slug] = winProb
 
@@ -591,7 +591,7 @@ def predictHeroPick(cleanFormData):
     outStr = ''
     for hero,prob in sortList:
         outStr += '{} has odds {}\n'.format(hero,prob)
-    print(outStr)
+    logger.info(outStr)
 
     return sortList
 
