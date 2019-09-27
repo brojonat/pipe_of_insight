@@ -4,6 +4,7 @@ import numpy as np
 
 from . import models as models
 from . import tables as tables
+from . import forms as forms
 from . import view_utils as view_utils
 
 from django.conf import settings
@@ -17,7 +18,6 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponse, JsonResponse 
 from django.http import HttpResponseRedirect, HttpResponseServerError, HttpResponseForbidden
 
-from django.urls import reverse
 from django.urls import reverse, reverse_lazy
 
 from django.utils import timezone
@@ -25,6 +25,8 @@ from django.utils.encoding import smart_str
 
 from django.views.generic import View, ListView, DetailView
 from django.views.generic import UpdateView, DeleteView, CreateView
+from django.views.generic.edit import FormView
+
 from django.views.generic.base import ContextMixin
 from django.views.decorators.csrf import csrf_protect, ensure_csrf_cookie
 from django.shortcuts import render,redirect,get_object_or_404
@@ -35,6 +37,69 @@ from bokeh.embed import server_document
 
 
 # Create your views here.
+
+class DraftView(FormView):
+    template_name = 'dota_chat/draft/draft_view.html'
+    form_class = forms.DraftForm
+    success_url = reverse_lazy('draft_view') # wow
+    context_object_name = 'viewContent'
+
+    def get_context_data(self,**kwargs):
+        context = super().get_context_data(**kwargs)
+        context['user'] = self.request.user.username
+
+        randomDraftList = view_utils.generateRandomDraft()
+        defaultData = {}
+
+        for i,heroSlug in enumerate(randomDraftList):
+            hero = models.Hero.objects.get(slug=heroSlug)
+            if i < 5:
+                keyBase = 'myTeamSlot{}_'.format(i+1)
+                userKeyBase = '{}{}'.format(keyBase,'user')
+                heroKeyBase = '{}{}'.format(keyBase,'hero')
+                if i == 0:
+                    defaultData[userKeyBase] = 'Your profile name'
+                    defaultData[heroKeyBase] = ''
+                else:
+                    defaultData[userKeyBase] = 'Ally {} profile'.format(i)
+                    defaultData[heroKeyBase] = hero.valveID
+
+            elif i >= 5 and i < 10:
+                keyBase = 'enemySlot{}_'.format(i+1-5)
+                userKeyBase = '{}{}'.format(keyBase,'user')
+                heroKeyBase = '{}{}'.format(keyBase,'hero')
+                defaultData[userKeyBase] = 'enemy user {}'.format(i)
+                defaultData[heroKeyBase] = hero.valveID
+            else:
+                pass
+
+        context['form'] = forms.DraftForm(defaultData)
+
+        return {self.context_object_name: context}
+
+    def post(self,request,*args,**kwargs):
+
+        if 'form' in request.POST:
+            form_class = self.form_class
+            self.form_name = 'form'
+
+        form = self.get_form(form_class)
+
+        if form.is_valid():
+            return self.form_valid(form)
+        else:
+            return self.form_invalid(**{self.form_name: form})
+
+    def form_valid(self, form):
+        # This method is called when valid form data has been POSTed.
+        # It should return an HttpResponse.
+        print('Form has been validated!')
+        res = view_utils.predictHeroPick(form.cleaned_data)
+
+        return super().form_valid(form)
+
+
+
 
 class HeroListView(ListView):
     ''' ListView for heros in Dota 2 '''

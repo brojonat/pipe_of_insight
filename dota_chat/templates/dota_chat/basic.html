@@ -6,16 +6,17 @@
 
 <div class="container">
     <div class="row">
-        <div class="col-12">
-            Links to lists:
+        <div class="display-4 mb-3">
+            Useful pages:
+        </div>
+        <div class="col-12 mb-5">
             <!-- Link to night ListView -->
-            <a class="btn btn-primary btn-sm" href='{% url "hero_list_view" %}'>Heros</a>
-            <a class="btn btn-primary btn-sm" href='{% url "player_list_view" %}'>Players</a>
-            <a class="btn btn-primary btn-sm" href='{% url "user_list_view" %}'>Users</a>
+            <a class="btn btn-primary btn mr-3" href='{% url "draft_view" %}'>Simulate a Draft</a>
+            <a class="btn btn-primary btn" href='{% url "hero_list_view" %}'>Hero Detail Pages</a>
         </div>
 
-        <div class="col-12 mt-3">
-            Here's some info about the current meta:
+        <div class="display-4 mt-5">
+            Interesting distributions:
         </div>
 
         <div class="col-12" id="temporalHist"></div>

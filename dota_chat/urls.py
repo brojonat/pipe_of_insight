@@ -41,6 +41,7 @@ urlpatterns = [
     re_path(r'^users/$',views.UserListView.as_view(),name='user_list_view'),
     re_path(r'^users/(?P<pk>[0-9]+)/$',views.UserDetailView.as_view(),name='user_detail_view'),
 
+    re_path(r'draft/$',views.DraftView.as_view(),name='draft_view'),
 
 ]
 
@@ -51,6 +52,8 @@ urlpatterns_functions = [
     re_path(r'^temporal_histograms/$', view_utils.temporal_histograms, name='temporal_histograms'),
     re_path(r'^hero_popularity_histogram/$', view_utils.hero_popularity_histogram, name='hero_popularity_histogram'),
     re_path(r'^region_histogram/$', view_utils.region_histogram, name='region_histogram'),
+    re_path(r'^generateRandomDraft/$',view_utils.generateRandomDraft,name='generate_random_draft'),
+    re_path(r'^predictHeroPick/$',view_utils.predictHeroPick,name='predict_hero_pick'),
 
 ]
 

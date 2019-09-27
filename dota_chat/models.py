@@ -207,6 +207,7 @@ class HeroBaseModel(models.Model):
     roles = models.ManyToManyField(HeroRoles)
 
     chatSentiment = models.FloatField(default=0.)
+    metaWinRate = models.FloatField(default=0.)
 
     valveID = models.IntegerField(unique=True) 
     valveName = models.CharField(max_length=50,unique=True)

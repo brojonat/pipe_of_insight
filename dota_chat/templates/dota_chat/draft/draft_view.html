@@ -1,0 +1,138 @@
+{% extends "dota_chat/draft/header_draft.html" %}
+{% load staticfiles %}
+
+{% block content %}
+
+    <!-- General info about the Target -->
+
+<div class="container">
+    <div class="row">
+        <nav aria-label="breadcrumb" class="flex-fill">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Dashboard</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Draft</a></li>
+            </ol>
+        </nav>
+    </div>
+
+    <!-- Main content block -->
+    <div class="row mb-3">
+        <div class="col-12">
+                    <form method="post">{% csrf_token %}
+
+                    {{ viewContent.form.non_field_errors }}
+                    <div class="form-row col-12">
+                        <div class="form-group col-2">
+                            {{ viewContent.form.enemySlot1_hero.label_tag }}
+                            {{ viewContent.form.enemySlot1_hero }}
+                            {{ viewContent.form.enemySlot1_hero.errors }}
+
+                            {{ viewContent.form.enemySlot1_user }}
+                            {{ viewContent.form.enemySlot1_user.label_tag }}
+                            {{ viewContent.form.enemySlot1_user.errors }}
+                        </div>
+                        <div class="form-group col-2">
+                            {{ viewContent.form.enemySlot2_hero.label_tag }}
+                            {{ viewContent.form.enemySlot2_hero }}
+                            {{ viewContent.form.enemySlot2_hero.errors }}
+
+                            {{ viewContent.form.enemySlot2_user }}
+                            {{ viewContent.form.enemySlot2_user.label_tag }}
+                            {{ viewContent.form.enemySlot2_user.errors }}
+                        </div>
+                        <div class="form-group col-2">
+                            {{ viewContent.form.enemySlot3_hero.label_tag }}
+                            {{ viewContent.form.enemySlot3_hero }}
+                            {{ viewContent.form.enemySlot3_hero.errors }}
+
+
+                            {{ viewContent.form.enemySlot3_user }}
+                            {{ viewContent.form.enemySlot3_user.label_tag }}
+                            {{ viewContent.form.enemySlot3_user.errors }}
+                        </div>
+                        <div class="form-group col-2">
+                            {{ viewContent.form.enemySlot4_hero.label_tag }}
+                            {{ viewContent.form.enemySlot4_hero }}
+                            {{ viewContent.form.enemySlot4_hero.errors }}
+
+
+                            {{ viewContent.form.enemySlot4_user }}
+                            {{ viewContent.form.enemySlot4_user.label_tag }}
+                            {{ viewContent.form.enemySlot4_user.errors }}
+                        </div>
+                        <div class="form-group col-2">
+                            {{ viewContent.form.enemySlot5_hero.label_tag }}
+                            {{ viewContent.form.enemySlot5_hero }}
+                            {{ viewContent.form.enemySlot5_hero.errors }}
+
+
+                            {{ viewContent.form.enemySlot5_user }}
+                            {{ viewContent.form.enemySlot5_user.label_tag }}
+                            {{ viewContent.form.enemySlot5_user.errors }}
+                        </div>
+                    </div>
+
+
+
+                    <div class="form-row col-12">
+                        <div class="form-group col-2">
+                            {{ viewContent.form.myTeamSlot1_hero.label_tag }}
+                            {{ viewContent.form.myTeamSlot1_hero }}
+                            {{ viewContent.form.myTeamSlot1_hero.errors }}
+
+                            {{ viewContent.form.myTeamSlot1_user }}
+                            {{ viewContent.form.myTeamSlot1_user.label_tag }}
+                            {{ viewContent.form.myTeamSlot1_user.errors }}
+                        </div>
+                        <div class="form-group col-2">
+                            {{ viewContent.form.myTeamSlot2_hero.label_tag }}
+                            {{ viewContent.form.myTeamSlot2_hero }}
+                            {{ viewContent.form.myTeamSlot2_hero.errors }}
+
+                            {{ viewContent.form.myTeamSlot2_user }}
+                            {{ viewContent.form.myTeamSlot2_user.label_tag }}
+                            {{ viewContent.form.myTeamSlot2_user.errors }}
+                        </div>
+                        <div class="form-group col-2">
+                            {{ viewContent.form.myTeamSlot3_hero.label_tag }}
+                            {{ viewContent.form.myTeamSlot3_hero }}
+                            {{ viewContent.form.myTeamSlot3_hero.errors }}
+
+
+                            {{ viewContent.form.myTeamSlot3_user }}
+                            {{ viewContent.form.myTeamSlot3_user.label_tag }}
+                            {{ viewContent.form.myTeamSlot3_user.errors }}
+                        </div>
+                        <div class="form-group col-2">
+                            {{ viewContent.form.myTeamSlot4_hero.label_tag }}
+                            {{ viewContent.form.myTeamSlot4_hero }}
+                            {{ viewContent.form.myTeamSlot4_hero.errors }}
+
+
+                            {{ viewContent.form.myTeamSlot4_user }}
+                            {{ viewContent.form.myTeamSlot4_user.label_tag }}
+                            {{ viewContent.form.myTeamSlot4_user.errors }}
+                        </div>
+                        <div class="form-group col-2">
+                            {{ viewContent.form.myTeamSlot5_hero.label_tag }}
+                            {{ viewContent.form.myTeamSlot5_hero }}
+                            {{ viewContent.form.myTeamSlot5_hero.errors }}
+
+
+                            {{ viewContent.form.myTeamSlot5_user }}
+                            {{ viewContent.form.myTeamSlot5_user.label_tag }}
+                            {{ viewContent.form.myTeamSlot5_user.errors }}
+                        </div>
+                    </div>
+
+
+                    <input class="btn btn-primary btn-sm" type="submit" name="form" value="Suggest Your Pick">
+                    </form>
+        </div>
+    </div>
+
+</div>
+
+
+{% endblock %}
+
