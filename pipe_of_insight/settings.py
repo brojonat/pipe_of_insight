@@ -123,6 +123,11 @@ LOGGING = {
             'level': 'INFO',
             'propagate': True,
         },
+       'dota_chat': {
+            'handlers': ['console','file'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
     },
 }
 
