@@ -721,16 +721,18 @@ def compute_features(heroDraftDict,userDraftDict):
     teamFeatureList = [
             'team_n_public',
             'team_top_n_games_hero',
-            #'team_top_n_games_with_hero',
             'team_top_win_rate_hero',
-            #'team_top_win_rate_with_hero',
             'team_top_meta_win_rate',
 
             'team_average_ngames_hero',
-            #'team_average_ngames_with_hero',
             'team_average_win_rate_hero',
-            #'team_average_win_rate_with_hero',
             'team_average_meta_win_rate'
+
+            #'team_top_n_games_with_hero',
+            #'team_top_win_rate_with_hero',
+            #'team_average_ngames_with_hero',
+            #'team_average_win_rate_with_hero',
+
         ]
 
     feature_list = heroFeatureList + skillFeatureList + teamFeatureList
@@ -786,7 +788,7 @@ def compute_features(heroDraftDict,userDraftDict):
                         try:
                             featureDict[side][feature] += 1
                         except KeyError:
-                            print('Key {} not in featureDict'.format(feature))
+                            logger.error('Key {} not in featureDict'.format(feature))
 
                 # now loop over abilities, add ability-based features
                 for behavior in behaviorList:
@@ -802,7 +804,7 @@ def compute_features(heroDraftDict,userDraftDict):
 
                 # check if the user has stats in our DB
                 if models.UserHeroStats.objects.filter(user=userInstance).exists():
-                    print('FOUND USER {} IN THE DATABSE!'.format(userInstance.valveID))
+                    logger.info('FOUND USER {} IN THE DATABSE!'.format(userInstance.valveID))
                     heroStats = models.UserHeroStats.objects.get(user=userInstance,hero=hero)
                     heroStatsList = [{
                             'hero_id': hero.valveID,
@@ -817,7 +819,7 @@ def compute_features(heroDraftDict,userDraftDict):
                 # if not, query from OpenDota and store all the player's stats
                 else:
 
-                    print('QUERYING OD FOR PLAYER STATS')
+                    logger.info('QUERYING OD FOR PLAYER STATS')
 
                     statsList = getHeroStats(userInstance.valveID)
                     userStatBulkCreateList = []
@@ -876,12 +878,12 @@ def compute_features(heroDraftDict,userDraftDict):
                                 'against_win': heroStats.against_win,
                             }]
                     except Exception as e:
-                        print(e)
+                        logger.error(e)
                         heroStatsList = []
 
             # no public profile, just default to pro stats
             else:
-                print('NO USER INFO, DEFAULTING TO THE META, ASSUMING 100 GAMES')
+                logger.info('NO USER INFO, DEFAULTING TO THE META, ASSUMING 100 GAMES')
                 heroStatsList = [{
                     'hero_id': hero.valveID,
                     'games': 100,
