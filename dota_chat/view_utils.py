@@ -598,7 +598,6 @@ def predictHeroPick(cleanFormData):
     for hero in allHeros:
         if hero.slug not in pickedHeroList:
 
-            logger.info('Working on {}'.format(hero.slug))
             heroDraftDict['myTeamSlot1_hero'] = hero
 
 
@@ -607,11 +606,6 @@ def predictHeroPick(cleanFormData):
                                 add_hero=hero,
                                 add_user=user
                             )
-
-            logger.info('INCOMPLETE: {}'.format(featureDict_incomplete))
-            logger.info('------------')
-            logger.info('COMPLETE: {}'.format(featureDict))
-
 
             # squash
             radiantDict = featureDict['RADIANT']
@@ -633,14 +627,9 @@ def predictHeroPick(cleanFormData):
             relData = pd.Series(relDict)
             xDF.loc[0] = relData
 
-            logger.info('FEATURE DICT:{}\n VALUES:{}\n'.format(xDF,xDF.values))
-
-
-            # predict (what i really want here is model.proba)
+            # predict
             winProb = mlModel.predict_proba(xDF.values)[0][1]
-            #winProb = mlModel.predict_proba(xDF.values)[::,1]
-
-            logger.info('{} has a winProb of {}'.format(hero.prettyName,winProb))
+            #winProb = mlModel.predict_proba(xDF.values)[::,1] # for logreg
 
             winProbDict[hero.slug] = winProb
 
