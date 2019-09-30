@@ -555,9 +555,9 @@ def predictHeroPick(cleanFormData):
                                 add_user=user
                             )
 
-            print('INCOMPLETE: {}'.format(featureDict_incomplete))
-            print('------------')
-            print('COMPLETE: {}'.format(featureDict))
+            logger.info('INCOMPLETE: {}'.format(featureDict_incomplete))
+            logger.info('------------')
+            logger.info('COMPLETE: {}'.format(featureDict))
 
 
             # squash
