@@ -32,8 +32,11 @@ from bokeh.server.server import Server
 from bokeh.application import Application
 from bokeh.application.handlers.function import FunctionHandler
 from bokeh.plotting import figure, ColumnDataSource
-
 import colorcet as cc
+
+import xgboost as xgb
+
+from matplotlib import pyplot as plt
 
 logger = logging.getLogger(__name__)
 
@@ -571,7 +574,7 @@ def predictHeroPick(cleanFormData):
             dfCols = [feature for feature in feature_list]
 
             # squash into one side
-            relDict = {}
+            relDict = OrderedDict()
             xDF = pd.DataFrame(columns=dfCols)
 
             for colName in feature_list:
