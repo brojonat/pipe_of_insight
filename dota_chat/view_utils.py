@@ -483,6 +483,52 @@ def predictHeroPick(cleanFormData):
     userDraftDict = OrderedDict()
     pickedHeroList = []
 
+    heroFeatureList = [
+            'num_carry',
+            'num_support',
+            'num_escape',
+            'num_durable',
+            'num_pusher',
+            'num_initiator',
+            'chat_sentiment',
+        ]
+
+    skillFeatureList = [
+            'num_passive',
+            'num_autocast',
+            'num_attack_modifier',
+            'num_disable',
+            'num_channel_cancelling',
+            'num_hard_disable',
+            'num_channeled',
+            'num_channeled_cast',
+            'num_bash',
+            'num_grants_invisibility',
+            'num_grants_true_sight',
+            'num_heals_teammates',
+            'num_aoe_denial',
+            'num_provides_miss_chance',
+        ]
+
+    teamFeatureList = [
+            'team_n_public',
+            'team_top_n_games_hero',
+            'team_top_win_rate_hero',
+            'team_top_meta_win_rate',
+
+            'team_average_ngames_hero',
+            'team_average_win_rate_hero',
+            'team_average_meta_win_rate'
+
+            #'team_top_n_games_with_hero',
+            #'team_top_win_rate_with_hero',
+            #'team_average_ngames_with_hero',
+            #'team_average_win_rate_with_hero',
+
+        ]
+
+    feature_list = heroFeatureList + skillFeatureList + teamFeatureList
+
     # parse heros
     for key,val in cleanFormData.items():
         if '_hero' in key:
@@ -571,7 +617,7 @@ def predictHeroPick(cleanFormData):
             radiantData = pd.Series(radiantDict)
             direData = pd.Series(direDict)
 
-            feature_list = list(featureDict['RADIANT'].keys())
+            #feature_list = list(featureDict['RADIANT'].keys())
             dfCols = [feature for feature in feature_list]
 
             # squash into one side
