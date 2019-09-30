@@ -17,6 +17,13 @@
     </div>
 
     <div class="row mb-3">
+        <div class="col-12"> 
+            <p>Welcome to the hero detail page for {{ viewContent.object.prettyName }}. Below are some plots showing {{ viewContent.object.prettyName }}'s performace in the current meta.
+
+            <p>To the right you'll find {{ viewContent.object.prettyName }}'s abilities, where you can hover over the icons for more information about each skill. 
+
+            <p>Finally, below you can see the current skill behaviors associated for with each of {{ viewContent.object.prettyName }}'s abilities. These represent a subset of the features used in the modeling for determining the best hero pick. I built this tool to rapidly assign the mappings between skills and their abstract features. You can drag and drop features, but if you don't have staff privileges, the relationship won't actually be updated in the database.
+        </div>
 
         <!-- Some leftard content (plots etc) -->
         <div class="col-2" id="winRatePlot"></div>
@@ -46,8 +53,8 @@
         </div>
     </div>
 
-    <div class="row">
         <!-- Chat stuff-->
+<!--      <div class="row">
         <div class="col" style="background-color: #efffc2">
             <h5>Chat Log:</h5>
             {% for player,chatLog in viewContent.chat.items %}
@@ -56,7 +63,7 @@
                 {% endfor %}
             {% endfor %}
         </div>
-    </div>
+    </div> -->
 
 
     <!-- Ability Feature Drag and Drop -->

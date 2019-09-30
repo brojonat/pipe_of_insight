@@ -85,7 +85,7 @@ def query_opendota_api_route_args(routeArgs,**kwargs):
 
 
 
-def winRatePlot(request,hero_id,USE_PRO=True):
+def winRatePlot(request,hero_id,USE_PRO=False):
 
     # assemble data
     heroInstance = models.Hero.objects.get(valveID=hero_id)
@@ -199,8 +199,8 @@ def winLossChatPlot(request,hero_id):
 
     # labels etc
     bokehAx.title.text = ''
-    bokehAx.xaxis.axis_label = 'wins'
-    bokehAx.yaxis.axis_label = 'losses'
+    bokehAx.xaxis.axis_label = 'Wins (professional games)'
+    bokehAx.yaxis.axis_label = 'Losses (professional games)'
     plotResponse = file_html(bokehAx,CDN,'winLossChatPlot')
 
     return HttpResponse(plotResponse)
