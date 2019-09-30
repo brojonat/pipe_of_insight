@@ -17,7 +17,14 @@
 
     <!-- Main content block -->
     <div class="row mb-3">
-        <div class="col-12">
+        <div class="col-12 mb-1">
+            <hr class="col-12">
+            <p>Welcome to the draft simulator! This page will use the hero and player (Steam User) combinations you supply to calculate the hero pick that will maximize your team's chances of winning the game! This is done with a machine learning model that takes into account hero skill interactions, hero chat sentiment, and even the historical performance of players on their respective heroes. You'll be redirected to the detail page for the recommended pick.
+            <p>The current hero picks have been randomly sampled from the distribution of popular hero picks (the current meta, shown on the main dashboard). You can change the heroes in the draft using the dropdown menus and tailor it to the game you're drafting for!
+            <p>Finally, if you know the Steam user name of other players in the game, you can start typing it into the 'Steam User' boxes and you should be presented with autocomplete options (remember, lots of Steam users have the same name, so rely on the ID if you can). If you don't see who you're looking for, make sure you've typed the name correctly and the account is set to "Expose Public Match Data". Try it on your own account first to get a sense of how it works.
+            <hr class="col-12">
+        </div>
+        <div class="col-12 mt-1">
                     <form method="post">{% csrf_token %}
 
                     {{ viewContent.form.non_field_errors }}
@@ -126,7 +133,7 @@
                     </div>
 
 
-                    <input class="btn btn-primary btn-sm" type="submit" name="form" value="Suggest Your Pick">
+                    <input class="btn btn-primary btn-sm" type="submit" name="form" value="Calculate Pick!">
                     </form>
         </div>
     </div>

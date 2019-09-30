@@ -8,6 +8,7 @@
                 <div class="card text-center">
                     <div class="card-body">
                         <h1 class="h3 mb-3 font-weight-normal">Pipe of Insight Login</h1>
+                        <p>Click <a href="{% url 'dashboard' %}">here</a> if you just want to browse around the site without logging in (recommended).</p>
                         <form method="post">{% csrf_token %}
                             {{ form.as_p }}
                             <button type="submit" class="btn btn-primary">Login</button>

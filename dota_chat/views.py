@@ -49,6 +49,8 @@ class DraftView(FormView):
     def get_context_data(self,**kwargs):
         context = super().get_context_data(**kwargs)
         context['user'] = self.request.user.username
+        if context['user'] == '':
+            context['user'] = 'Anonymous'
 
         randomDraftList = view_utils.generateRandomDraft()
         defaultData = {}
@@ -113,6 +115,8 @@ class HeroListView(ListView):
     def get_context_data(self,**kwargs):
         context = super().get_context_data(**kwargs)
         context['user'] = self.request.user.username
+        if context['user'] == '':
+            context['user'] = 'Anonymous'
 
         table = tables.HeroListTable(models.Hero.objects.all().order_by('name'))
         RequestConfig(self.request,paginate={'per_page':15}).configure(table)
@@ -130,6 +134,8 @@ class HeroDetailView(DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['user'] = self.request.user.username
+        if context['user'] == '':
+            context['user'] = 'Anonymous'
 
         # construct abilities
         allAbilities = list(self.object.abilities.all().order_by('abilitySlot'))
@@ -183,6 +189,8 @@ class AbilityListView(ListView):
     def get_context_data(self,**kwargs):
         context = super().get_context_data(**kwargs)
         context['user'] = self.request.user.username
+        if context['user'] == '':
+            context['user'] = 'Anonymous'
 
         table = tables.AbilityListTable(models.HeroAbility.objects.all().order_by('name'))
         RequestConfig(self.request,paginate={'per_page':50}).configure(table)
@@ -200,6 +208,8 @@ class AbilityDetailView(DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['user'] = self.request.user.username
+        if context['user'] == '':
+            context['user'] = 'Anonymous'
         return {self.context_object_name: context}
 
 class PlayerListView(ListView):
@@ -210,6 +220,9 @@ class PlayerListView(ListView):
 
     def get_context_data(self,**kwargs):
         context = super().get_context_data(**kwargs)
+        context['user'] = self.request.user.username
+        if context['user'] == '':
+            context['user'] = 'Anonymous'
 
         table = tables.PlayerListTable(models.Player.objects.all().order_by('name'))
         RequestConfig(self.request,paginate={'per_page':15}).configure(table)
@@ -226,6 +239,8 @@ class PlayerDetailView(DetailView):
     def get_context_data(self,**kwargs):
         context = super().get_context_data(**kwargs)
         context['user'] = self.request.user.username
+        if context['user'] == '':
+            context['user'] = 'Anonymous'
 
         # construct chat
         chatLog = {}
@@ -251,6 +266,9 @@ class UserListView(ListView):
 
     def get_context_data(self,**kwargs):
         context = super().get_context_data(**kwargs)
+        context['user'] = self.request.user.username
+        if context['user'] == '':
+            context['user'] = 'Anonymous'
 
         table = tables.UserListTable(models.SteamUser.objects.all().order_by('name'))
         RequestConfig(self.request,paginate={'per_page':15}).configure(table)
@@ -268,6 +286,8 @@ class UserDetailView(DetailView):
     def get_context_data(self,**kwargs):
         context = super().get_context_data(**kwargs)
         context['user'] = self.request.user.username
+        if context['user'] == '':
+            context['user'] = 'Anonymous'
 
         # construct chat
         chatLog = {}
@@ -332,10 +352,13 @@ def dashboard(request):
     viewContent = {}
     viewContent['testVariable'] = 'text'
     viewContent['user'] = request.user.username
+    if viewContent['user'] == '':
+        viewContent['user'] = 'Anonymous'
 
     return render(request, 'dota_chat/basic.html', {'viewContent': viewContent})
 
 
+@login_required
 def addAbilityBehaviors(request):
     if request.method == 'POST':
         try:
@@ -359,6 +382,7 @@ def addAbilityBehaviors(request):
         except Exception as e:
             return JsonResponse({'success': False,'errText':str(e)})
 
+@login_required
 def removeAbilityBehaviors(request):
     if request.method == 'POST':
         try:
@@ -412,6 +436,8 @@ def user_search_redirect(request):
         try:
             viewContent = {}
             viewContent['user'] = request.user.username
+            if viewContent['user'] == '':
+                viewContent['user'] = 'Anonymous'
 
             personaname_steamID = request.POST['user']
             account_id = personaname_steamID.split('(ACCT ID: ')[1][:-1]
