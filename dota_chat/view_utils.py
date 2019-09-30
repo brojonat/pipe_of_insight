@@ -536,7 +536,8 @@ def predictHeroPick(cleanFormData):
     # the hero winrate from the current meta
 
     # load model
-    mlModel = pickle.load(open('dota_chat/ml_models/myXGBoostModel.pkl', 'rb'))
+    #mlModel = pickle.load(open('dota_chat/ml_models/myXGBoostModel.pkl', 'rb'))
+    mlModel = pickle.load(open('dota_chat/ml_models/xgTest.pkl', 'rb'))
     #mlModel = pickle.load(open('dota_chat/ml_models/myLogRegModel.pkl', 'rb'))
 
     # compute features (first do static features, then update with )
@@ -544,7 +545,7 @@ def predictHeroPick(cleanFormData):
 
     # for each possible hero choice, calculate winProb
     allHeros = models.Hero.objects.all()
-    winProbDict = {}
+    winProbDict = OrderedDict()
     for hero in allHeros:
         if hero.slug not in pickedHeroList:
 
@@ -583,7 +584,7 @@ def predictHeroPick(cleanFormData):
             relData = pd.Series(relDict)
             xDF.loc[0] = relData
 
-            #print('FEATURE DICT:\n{}'.format(xDF))
+            print('FEATURE DICT:{}\n VALUES:{}\n'.format(xDF,xDF.values))
 
 
             # predict (what i really want here is model.proba)
