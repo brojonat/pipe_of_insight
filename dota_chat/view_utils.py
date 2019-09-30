@@ -584,7 +584,7 @@ def predictHeroPick(cleanFormData):
             relData = pd.Series(relDict)
             xDF.loc[0] = relData
 
-            print('FEATURE DICT:{}\n VALUES:{}\n'.format(xDF,xDF.values))
+            logger.info('FEATURE DICT:{}\n VALUES:{}\n'.format(xDF,xDF.values))
 
 
             # predict (what i really want here is model.proba)
