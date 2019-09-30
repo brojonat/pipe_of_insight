@@ -555,6 +555,10 @@ def predictHeroPick(cleanFormData):
                                 add_user=user
                             )
 
+            print('INCOMPLETE: {}'.format(featureDict_incomplete))
+            print('------------')
+            print('COMPLETE: {}'.format(featureDict))
+
 
             # squash
             radiantDict = featureDict['RADIANT']
@@ -751,7 +755,6 @@ def compute_features(heroDraftDict,userDraftDict):
 
         # init team based metrics
         team_n_public = 0
-        meta_winrate_hero_list = []
 
         player_ngames_hero_list = []
         player_ngames_with_hero_list = []
@@ -944,20 +947,20 @@ def compute_features(heroDraftDict,userDraftDict):
             player_winrate_with_hero_list = [0.]
         if len(player_hero_sentiment_list) == 0:
             player_hero_sentiment_list = [0.]
-        if len(meta_winrate_hero_list) == 0:
-            meta_winrate_hero_list = [0.]
+        if len(player_hero_meta_winrate_list) == 0:
+            player_hero_meta_winrate_list = [0.]
 
         team_top_n_games_hero = np.array(player_ngames_hero_list).max()
         team_top_n_games_with_hero = np.array(player_ngames_with_hero_list).max()
         team_top_win_rate_hero = np.array(player_winrate_hero_list).max()
         team_top_win_rate_with_hero = np.array(player_winrate_with_hero_list).max()
-        team_top_meta_win_rate = np.array(meta_winrate_hero_list).max()
+        team_top_meta_win_rate = np.array(player_hero_meta_winrate_list).max()
 
         team_average_ngames_hero = np.array(player_ngames_hero_list).mean()
         team_average_ngames_with_hero = np.array(player_ngames_with_hero_list).mean()
         team_average_win_rate_hero = np.array(player_winrate_hero_list).mean()
         team_average_win_rate_with_hero = np.array(player_winrate_with_hero_list).mean()
-        team_average_meta_win_rate = np.array(meta_winrate_hero_list).mean()
+        team_average_meta_win_rate = np.array(player_hero_meta_winrate_list).mean()
         team_average_sentiment = np.array(player_hero_sentiment_list).mean()
 
         team_stat_feature_dict = {

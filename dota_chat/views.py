@@ -96,7 +96,6 @@ class DraftView(FormView):
         # This method is called when valid form data has been POSTed.
         # It should return an HttpResponse.
         sortList = view_utils.predictHeroPick(form.cleaned_data)
-
         bestHeroSlug = sortList[-1][0]
         #bestHero = models.Hero.objects.get(slug=bestHeroSlug)
 
