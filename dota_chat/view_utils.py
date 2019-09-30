@@ -582,12 +582,15 @@ def predictHeroPick(cleanFormData):
     # the hero winrate from the current meta
 
     # load model
-    #mlModel = pickle.load(open('dota_chat/ml_models/myXGBoostModel.pkl', 'rb'))
-    mlModel = pickle.load(open('dota_chat/ml_models/xgTest.pkl', 'rb'))
+    mlModel = pickle.load(open('dota_chat/ml_models/myXGBoostModel.pkl', 'rb'))
     #mlModel = pickle.load(open('dota_chat/ml_models/myLogRegModel.pkl', 'rb'))
 
     # compute features (first do static features, then update with )
-    featureDict_incomplete = compute_features(heroDraftDict,userDraftDict)
+    featureDict_incomplete = compute_features(
+                                    heroDraftDict,
+                                    userDraftDict,
+                                    feature_list=feature_list
+                                )
 
     # for each possible hero choice, calculate winProb
     allHeros = models.Hero.objects.all()
@@ -741,65 +744,23 @@ def update_features(featureDict_incomplete,add_hero,add_user=None):
 
 
 
-def compute_features(heroDraftDict,userDraftDict):
+def compute_features(heroDraftDict,userDraftDict,feature_list=[]):
 
     # initialize all lists and key,values
-
-    heroFeatureList = [
-            'num_carry',
-            'num_support',
-            'num_escape',
-            'num_durable',
-            'num_pusher',
-            'num_initiator',
-            'chat_sentiment',
-        ]
-
-    skillFeatureList = [
-            'num_passive',
-            'num_autocast',
-            'num_attack_modifier',
-            'num_disable',
-            'num_channel_cancelling',
-            'num_hard_disable',
-            'num_channeled',
-            'num_channeled_cast',
-            'num_bash',
-            'num_grants_invisibility',
-            'num_grants_true_sight',
-            'num_heals_teammates',
-            'num_aoe_denial',
-            'num_provides_miss_chance',
-        ]
-
-    teamFeatureList = [
-            'team_n_public',
-            'team_top_n_games_hero',
-            'team_top_win_rate_hero',
-            'team_top_meta_win_rate',
-
-            'team_average_ngames_hero',
-            'team_average_win_rate_hero',
-            'team_average_meta_win_rate'
-
-            #'team_top_n_games_with_hero',
-            #'team_top_win_rate_with_hero',
-            #'team_average_ngames_with_hero',
-            #'team_average_win_rate_with_hero',
-
-        ]
-
-    feature_list = heroFeatureList + skillFeatureList + teamFeatureList
 
     allHeroRoles = models.HeroRoles.objects.all()
     allHeros = models.Hero.objects.all()
 
-    radiant_features = {key: 0 for key in feature_list}
-    dire_features = {key: 0 for key in feature_list}
-    featureDict = {
-            'RADIANT':radiant_features,
-            'DIRE':dire_features
-        }
+    radiant_features = OrderedDict()
+    dire_features = OrderedDict()
+    featureDict = OrderedDict()
+
+    for key in feature_list:
+        radiant_features[key] = 0
+        dire_features[key] = 0
+
+    featureDict['RADIANT'] = radiant_features
+    featureDict['DIRE'] = dire_features
 
     for side in ['RADIANT','DIRE']:
 
