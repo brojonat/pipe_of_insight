@@ -607,6 +607,8 @@ def predictHeroPick(cleanFormData):
                                 add_user=user
                             )
 
+            print(featureDict)
+
             # squash
             radiantDict = featureDict['RADIANT']
             direDict = featureDict['DIRE']
@@ -768,108 +770,59 @@ def compute_features(heroDraftDict,userDraftDict,feature_list=[]):
 
         for userKey,account_id in userDraftDict.items():
 
-            heroKey = userKey.replace('_user','_hero')
-            hero = heroDraftDict[heroKey]
-            roles = hero.roles.all()
-            abilities = hero.abilities.all()
+            # process one team at a time
+            procDireSide = (side == 'DIRE' and 'enemySlot' in userKey)
+            procRadiantSide = (side == 'RADIANT' and 'myTeamSlot' in userKey)
 
-            player_hero_sentiment_list.append(hero.chatSentiment)
-            player_hero_meta_winrate_list.append(hero.metaWinRate)
+            if procRadiantSide or procDireSide:
 
-            # assemble behavior list for this hero
-            behaviorList = []
-            for ability in abilities:
-                for behavior in ability.behavior.all():
-                    behaviorList.append(behavior.behavior.lower().replace(' ','_'))
+                heroKey = userKey.replace('_user','_hero')
 
-            # capture role and ability behavior features
-            for feature in feature_list:
+                # don't add the user's hero on the first pass through,
+                # otherwise the roles etc will get double counted
+                if heroKey == 'myTeamSlot1_hero':
+                    pdb.set_trace()
+                    continue
 
-                # loop over roles, add role-based features
-                for role in roles:
-                    if '_'.join(feature.split('_')[1:]).lower() == role.role.lower():
-                        try:
-                            featureDict[side][feature] += 1
-                        except KeyError:
-                            logger.error('Key {} not in featureDict'.format(feature))
+                hero = heroDraftDict[heroKey]
+                roles = hero.roles.all()
+                abilities = hero.abilities.all()
 
-                # now loop over abilities, add ability-based features
-                for behavior in behaviorList:
-                    if '_'.join(feature.split('_')[1:]).lower() == behavior.lower():
-                        featureDict[side][feature] += 1
+                player_hero_sentiment_list.append(hero.chatSentiment)
+                player_hero_meta_winrate_list.append(hero.metaWinRate)
 
-            # now add the SteamUser player-based features
-            ## 1. retrieve player rank and ngames with hero
-            if account_id != '':
-                team_n_public += 1
+                # assemble behavior list for this hero
+                behaviorList = []
+                for ability in abilities:
+                    for behavior in ability.behavior.all():
+                        behaviorList.append(behavior.behavior.lower().replace(' ','_'))
 
-                userInstance = models.SteamUser.objects.get(valveID=account_id)
+                # capture role and ability behavior features
+                for feature in feature_list:
 
-                # check if the user has stats in our DB
-                if models.UserHeroStats.objects.filter(user=userInstance).exists():
-                    logger.info('FOUND USER {} IN THE DATABSE!'.format(userInstance.valveID))
-                    heroStats = models.UserHeroStats.objects.get(user=userInstance,hero=hero)
-                    heroStatsList = [{
-                            'hero_id': hero.valveID,
-                            'games': heroStats.games,
-                            'win': heroStats.win,
-                            'with_games': heroStats.with_games,
-                            'with_win': heroStats.with_win,
-                            'against_games': heroStats.against_games,
-                            'against_win': heroStats.against_win,
-                        }]
-
-                # if not, query from OpenDota and store all the player's stats
-                else:
-
-                    logger.info('QUERYING OD FOR PLAYER STATS')
-
-                    statsList = getHeroStats(userInstance.valveID)
-                    userStatBulkCreateList = []
-
-                    for heroStatDict in statsList:
-                        statHero = models.Hero.objects.get(valveID=int(heroStatDict['hero_id']))
-                        playerNGames = heroStatDict['games']
-                        playerNGames_with = heroStatDict['with_games']
-                        playerNGames_against = heroStatDict['against_games']
-                        playerWinGames = heroStatDict['win']
-                        playerWinGames_with = heroStatDict['with_win']
-                        playerWinGames_against = heroStatDict['against_win']
-
-                        # defaults
-                        hsDefaultDict = {
-                                'games': playerNGames,
-                                'win': playerWinGames,
-                                'with_games': playerNGames_with,
-                                'with_win': playerWinGames_with,
-                                'against_games': playerNGames_against,
-                                'against_win': playerWinGames_against,
-                            }
-
-                        # store
-                        hsInstance = models.UserHeroStats(
-                                        user = userInstance,
-                                        hero = statHero,
-                                        games = playerNGames,
-                                        win = playerWinGames,
-                                        with_games = playerNGames_with,
-                                        with_win = playerWinGames_with,
-                                        against_games = playerNGames_against,
-                                        against_win = playerWinGames_against
-                            )
-                        userStatBulkCreateList.append(hsInstance)
-
-                    try:
-                        models.UserHeroStats.objects.bulk_create(userStatBulkCreateList)
-                    except IntegrityError:
-                        for obj in userStatBulkCreateList:
+                    # loop over roles, add role-based features
+                    for role in roles:
+                        if '_'.join(feature.split('_')[1:]).lower() == role.role.lower():
                             try:
-                                obj.save()
-                            except IntegrityError:
-                                continue
+                                featureDict[side][feature] += 1
+                            except KeyError:
+                                logger.error('Key {} not in featureDict'.format(feature))
 
-                    # now get this hero's stats for further processing
-                    try:
+                    # now loop over abilities, add ability-based features
+                    for behavior in behaviorList:
+                        if '_'.join(feature.split('_')[1:]).lower() == behavior.lower():
+                            featureDict[side][feature] += 1
+
+                # now add the SteamUser player-based features
+                ## 1. retrieve player rank and ngames with hero
+                if account_id != '':
+                    team_n_public += 1
+
+                    userInstance = models.SteamUser.objects.get(valveID=account_id)
+
+                    # check if the user has stats in our DB
+                    if models.UserHeroStats.objects.filter(user=userInstance).exists():
+                        logger.info('FOUND USER {} IN THE DATABSE!'.format(userInstance.valveID))
                         heroStats = models.UserHeroStats.objects.get(user=userInstance,hero=hero)
                         heroStatsList = [{
                                 'hero_id': hero.valveID,
@@ -880,113 +833,175 @@ def compute_features(heroDraftDict,userDraftDict,feature_list=[]):
                                 'against_games': heroStats.against_games,
                                 'against_win': heroStats.against_win,
                             }]
-                    except Exception as e:
-                        logger.error(e)
-                        heroStatsList = []
 
-            # no public profile, just default to pro stats
-            else:
-                logger.info('NO USER INFO, DEFAULTING TO THE META, ASSUMING 100 GAMES')
-                heroStatsList = [{
-                    'hero_id': hero.valveID,
-                    'games': 100,
-                    'win': int(100*hero.metaWinRate),
-                    'with_games': 0,
-                    'with_win': 0,
-                    'against_games': 0,
-                    'against_win': 0,
-                }]
-
-            # now total stuff up
-            playerNGames = 0
-            playerNGames_with = 0
-            playerNGames_against = 0
-            playerWinrate = 0
-            playerWinrate_with = 0
-            playerWinrate_against = 0
-
-            # this should be a one element list
-            for heroStats in heroStatsList:
-                if int(heroStats['hero_id']) == hero.valveID:
-                    # unpack
-                    playerNGames = heroStats['games']
-                    playerNGames_with = heroStats['with_games']
-                    playerNGames_against = heroStats['against_games']
-
-                    # catch divide by zeros
-                    if playerNGames > 0:
-                        playerWinrate = heroStats['win'] / playerNGames
+                    # if not, query from OpenDota and store all the player's stats
                     else:
-                        playerWinrate = 0.
-                    if playerNGames_with > 0:
-                        playerWinrate_with = heroStats['with_win'] / playerNGames_with
-                    else:
-                        playerNGames_with = 0
-                    if playerNGames_against > 0:
-                        playerWinrate_against = heroStats['against_win'] / playerNGames_against
-                    else:
-                        playerWinrate_against = 0
 
-                    break
+                        logger.info('QUERYING OD FOR PLAYER STATS')
 
-            ## 2. store
-            player_ngames_hero_list.append(playerNGames)
-            player_ngames_with_hero_list.append(playerNGames_with)
+                        statsList = getHeroStats(userInstance.valveID)
+                        userStatBulkCreateList = []
 
-            player_winrate_hero_list.append(playerWinrate)
-            player_winrate_with_hero_list.append(playerWinrate_with)
+                        for heroStatDict in statsList:
+                            statHero = models.Hero.objects.get(valveID=int(heroStatDict['hero_id']))
+                            playerNGames = heroStatDict['games']
+                            playerNGames_with = heroStatDict['with_games']
+                            playerNGames_against = heroStatDict['against_games']
+                            playerWinGames = heroStatDict['win']
+                            playerWinGames_with = heroStatDict['with_win']
+                            playerWinGames_against = heroStatDict['against_win']
 
-        ## 3.compute team stats, add to feature dict
-        if len(player_ngames_hero_list) == 0:
-            player_ngames_hero_list = [0.]
-        if len(player_ngames_with_hero_list) == 0:
-            player_ngames_with_hero_list = [0.]
-        if len(player_winrate_hero_list) == 0:
-            player_winrate_hero_list = [0.]
-        if len(player_winrate_with_hero_list) == 0:
-            player_winrate_with_hero_list = [0.]
-        if len(player_hero_sentiment_list) == 0:
-            player_hero_sentiment_list = [0.]
-        if len(player_hero_meta_winrate_list) == 0:
-            player_hero_meta_winrate_list = [0.]
+                            # defaults
+                            hsDefaultDict = {
+                                    'games': playerNGames,
+                                    'win': playerWinGames,
+                                    'with_games': playerNGames_with,
+                                    'with_win': playerWinGames_with,
+                                    'against_games': playerNGames_against,
+                                    'against_win': playerWinGames_against,
+                                }
 
-        team_top_n_games_hero = np.array(player_ngames_hero_list).max()
-        team_top_n_games_with_hero = np.array(player_ngames_with_hero_list).max()
-        team_top_win_rate_hero = np.array(player_winrate_hero_list).max()
-        team_top_win_rate_with_hero = np.array(player_winrate_with_hero_list).max()
-        team_top_meta_win_rate = np.array(player_hero_meta_winrate_list).max()
+                            # store
+                            hsInstance = models.UserHeroStats(
+                                            user = userInstance,
+                                            hero = statHero,
+                                            games = playerNGames,
+                                            win = playerWinGames,
+                                            with_games = playerNGames_with,
+                                            with_win = playerWinGames_with,
+                                            against_games = playerNGames_against,
+                                            against_win = playerWinGames_against
+                                )
+                            userStatBulkCreateList.append(hsInstance)
 
-        team_average_ngames_hero = np.array(player_ngames_hero_list).mean()
-        team_average_ngames_with_hero = np.array(player_ngames_with_hero_list).mean()
-        team_average_win_rate_hero = np.array(player_winrate_hero_list).mean()
-        team_average_win_rate_with_hero = np.array(player_winrate_with_hero_list).mean()
-        team_average_meta_win_rate = np.array(player_hero_meta_winrate_list).mean()
-        team_average_sentiment = np.array(player_hero_sentiment_list).mean()
+                        try:
+                            models.UserHeroStats.objects.bulk_create(userStatBulkCreateList)
+                        except IntegrityError:
+                            for obj in userStatBulkCreateList:
+                                try:
+                                    obj.save()
+                                except IntegrityError:
+                                    continue
 
-        team_stat_feature_dict = {
-                'team_n_public': team_n_public,
+                        # now get this hero's stats for further processing
+                        try:
+                            heroStats = models.UserHeroStats.objects.get(user=userInstance,hero=hero)
+                            heroStatsList = [{
+                                    'hero_id': hero.valveID,
+                                    'games': heroStats.games,
+                                    'win': heroStats.win,
+                                    'with_games': heroStats.with_games,
+                                    'with_win': heroStats.with_win,
+                                    'against_games': heroStats.against_games,
+                                    'against_win': heroStats.against_win,
+                                }]
+                        except Exception as e:
+                            logger.error(e)
+                            heroStatsList = []
 
-                'team_top_n_games_hero': team_top_n_games_hero,
-                'team_top_n_games_with_hero': team_top_n_games_with_hero,
-                'team_top_win_rate_hero': team_top_win_rate_hero,
-                'team_top_win_rate_with_hero': team_top_win_rate_with_hero,
-                'team_top_meta_win_rate': team_top_meta_win_rate,
+                # no public profile, just default to pro stats
+                else:
+                    logger.info('NO USER INFO, DEFAULTING TO THE META, ASSUMING 100 GAMES')
+                    heroStatsList = [{
+                        'hero_id': hero.valveID,
+                        'games': 100,
+                        'win': int(100*hero.metaWinRate),
+                        'with_games': 0,
+                        'with_win': 0,
+                        'against_games': 0,
+                        'against_win': 0,
+                    }]
 
-                'team_average_ngames_hero': team_average_ngames_hero,
-                'team_average_ngames_with_hero': team_average_ngames_with_hero,
-                'team_average_win_rate_hero': team_average_win_rate_hero,
-                'team_average_win_rate_with_hero': team_average_win_rate_with_hero,
-                'team_average_win_rate_hero': team_average_win_rate_hero,
-                'team_average_meta_win_rate': team_average_meta_win_rate,
-            }
+                # now total stuff up
+                playerNGames = 0
+                playerNGames_with = 0
+                playerNGames_against = 0
+                playerWinrate = 0
+                playerWinrate_with = 0
+                playerWinrate_against = 0
 
-        # dump the team stats into the featureDict
-        for feature,statValue in team_stat_feature_dict.items():
-            if feature in feature_list:
-                featureDict[side][feature] = statValue
+                # this should be a one element list
+                for heroStats in heroStatsList:
+                    if int(heroStats['hero_id']) == hero.valveID:
+                        # unpack
+                        playerNGames = heroStats['games']
+                        playerNGames_with = heroStats['with_games']
+                        playerNGames_against = heroStats['against_games']
 
-        # chat sentiment
-        featureDict[side]['chat_sentiment'] = team_average_sentiment
+                        # catch divide by zeros
+                        if playerNGames > 0:
+                            playerWinrate = heroStats['win'] / playerNGames
+                        else:
+                            playerWinrate = 0.
+                        if playerNGames_with > 0:
+                            playerWinrate_with = heroStats['with_win'] / playerNGames_with
+                        else:
+                            playerNGames_with = 0
+                        if playerNGames_against > 0:
+                            playerWinrate_against = heroStats['against_win'] / playerNGames_against
+                        else:
+                            playerWinrate_against = 0
+
+                        break
+
+                ## 2. store
+                player_ngames_hero_list.append(playerNGames)
+                player_ngames_with_hero_list.append(playerNGames_with)
+
+                player_winrate_hero_list.append(playerWinrate)
+                player_winrate_with_hero_list.append(playerWinrate_with)
+
+            ## 3.compute team stats, add to feature dict
+            if len(player_ngames_hero_list) == 0:
+                player_ngames_hero_list = [0.]
+            if len(player_ngames_with_hero_list) == 0:
+                player_ngames_with_hero_list = [0.]
+            if len(player_winrate_hero_list) == 0:
+                player_winrate_hero_list = [0.]
+            if len(player_winrate_with_hero_list) == 0:
+                player_winrate_with_hero_list = [0.]
+            if len(player_hero_sentiment_list) == 0:
+                player_hero_sentiment_list = [0.]
+            if len(player_hero_meta_winrate_list) == 0:
+                player_hero_meta_winrate_list = [0.]
+
+            team_top_n_games_hero = np.array(player_ngames_hero_list).max()
+            team_top_n_games_with_hero = np.array(player_ngames_with_hero_list).max()
+            team_top_win_rate_hero = np.array(player_winrate_hero_list).max()
+            team_top_win_rate_with_hero = np.array(player_winrate_with_hero_list).max()
+            team_top_meta_win_rate = np.array(player_hero_meta_winrate_list).max()
+
+            team_average_ngames_hero = np.array(player_ngames_hero_list).mean()
+            team_average_ngames_with_hero = np.array(player_ngames_with_hero_list).mean()
+            team_average_win_rate_hero = np.array(player_winrate_hero_list).mean()
+            team_average_win_rate_with_hero = np.array(player_winrate_with_hero_list).mean()
+            team_average_meta_win_rate = np.array(player_hero_meta_winrate_list).mean()
+            team_average_sentiment = np.array(player_hero_sentiment_list).mean()
+
+            team_stat_feature_dict = {
+                    'team_n_public': team_n_public,
+
+                    'team_top_n_games_hero': team_top_n_games_hero,
+                    'team_top_n_games_with_hero': team_top_n_games_with_hero,
+                    'team_top_win_rate_hero': team_top_win_rate_hero,
+                    'team_top_win_rate_with_hero': team_top_win_rate_with_hero,
+                    'team_top_meta_win_rate': team_top_meta_win_rate,
+
+                    'team_average_ngames_hero': team_average_ngames_hero,
+                    'team_average_ngames_with_hero': team_average_ngames_with_hero,
+                    'team_average_win_rate_hero': team_average_win_rate_hero,
+                    'team_average_win_rate_with_hero': team_average_win_rate_with_hero,
+                    'team_average_win_rate_hero': team_average_win_rate_hero,
+                    'team_average_meta_win_rate': team_average_meta_win_rate,
+                }
+
+            # dump the team stats into the featureDict
+            for feature,statValue in team_stat_feature_dict.items():
+                if feature in feature_list:
+                    featureDict[side][feature] = statValue
+
+            # chat sentiment
+            featureDict[side]['chat_sentiment'] = team_average_sentiment
 
     # return
     return featureDict
