@@ -771,10 +771,10 @@ def compute_features(heroDraftDict,userDraftDict,feature_list=[]):
         for userKey,account_id in userDraftDict.items():
 
             # process one team at a time
-            procDireSide = (side == 'DIRE' and 'enemySlot' in userKey)
-            procRadiantSide = (side == 'RADIANT' and 'myTeamSlot' in userKey)
+            direProc_direPlayer = (side == 'DIRE' and 'enemySlot' in userKey)
+            radProc_radPlayer = (side == 'RADIANT' and 'myTeamSlot' in userKey)
 
-            if procRadiantSide or procDireSide:
+            if direProc_direPlayer or radProc_radPlayer:
 
                 heroKey = userKey.replace('_user','_hero')
 
