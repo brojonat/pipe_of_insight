@@ -58,7 +58,7 @@ class DraftView(FormView):
         for i,heroSlug in enumerate(randomDraftList):
             hero = models.Hero.objects.get(slug=heroSlug)
             if i < 5:
-                keyBase = 'myTeamSlot{}_'.format(i+1)
+                keyBase = 'allySlot{}_'.format(i+1)
                 userKeyBase = '{}{}'.format(keyBase,'user')
                 heroKeyBase = '{}{}'.format(keyBase,'hero')
                 if i == 0:

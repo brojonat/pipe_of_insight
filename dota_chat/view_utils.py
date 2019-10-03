@@ -591,8 +591,8 @@ def predictHeroPick(cleanFormData):
                     break
 
     # populate users where needed?
-    if userDraftDict['myTeamSlot1_user'] != '':
-        user = userDraftDict['myTeamSlot1_user']
+    if userDraftDict['allySlot1_user'] != '':
+        user = userDraftDict['allySlot1_user']
     else:
         user = None
     # no, we'll just leave it blank and in the feature calculation I'll pull
@@ -615,7 +615,7 @@ def predictHeroPick(cleanFormData):
     for hero in allHeros:
         if hero.slug not in pickedHeroList:
 
-            heroDraftDict['myTeamSlot1_hero'] = hero
+            heroDraftDict['allySlot1_hero'] = hero
 
 
             featureDict = update_features(
@@ -789,7 +789,7 @@ def compute_features(heroDraftDict,userDraftDict,feature_list=[]):
 
             # process one team at a time
             direProc_direPlayer = (side == 'DIRE' and 'enemySlot' in userKey)
-            radProc_radPlayer = (side == 'RADIANT' and 'myTeamSlot' in userKey)
+            radProc_radPlayer = (side == 'RADIANT' and 'allySlot' in userKey)
 
             if direProc_direPlayer or radProc_radPlayer:
 
@@ -797,7 +797,7 @@ def compute_features(heroDraftDict,userDraftDict,feature_list=[]):
 
                 # don't add the user's hero on the first pass through,
                 # otherwise the roles etc will get double counted
-                if heroKey == 'myTeamSlot1_hero':
+                if heroKey == 'allySlot1_hero':
                     continue
 
                 hero = heroDraftDict[heroKey]
