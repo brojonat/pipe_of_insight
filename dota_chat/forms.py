@@ -16,17 +16,17 @@ class DraftForm(forms.Form):
     heroChioces = [(h.valveID,h.prettyName) for h in allHeros]
     heroChioces = nullChoiceList+heroChioces
 
-    myTeamSlot1_hero = forms.ChoiceField(required=False,choices=heroChioces,label = 'Your Hero (optional):')
-    myTeamSlot2_hero = forms.ChoiceField(required=False,choices=heroChioces,label = 'Allied Hero:')
-    myTeamSlot3_hero = forms.ChoiceField(required=False,choices=heroChioces,label = 'Allied Hero:')
-    myTeamSlot4_hero = forms.ChoiceField(required=False,choices=heroChioces,label = 'Allied Hero:')
-    myTeamSlot5_hero = forms.ChoiceField(required=False,choices=heroChioces,label = 'Allied Hero:')
+    allySlot1_hero = forms.ChoiceField(required=False,choices=heroChioces,label = 'Your Hero (optional):')
+    allySlot2_hero = forms.ChoiceField(required=False,choices=heroChioces,label = 'Allied Hero:')
+    allySlot3_hero = forms.ChoiceField(required=False,choices=heroChioces,label = 'Allied Hero:')
+    allySlot4_hero = forms.ChoiceField(required=False,choices=heroChioces,label = 'Allied Hero:')
+    allySlot5_hero = forms.ChoiceField(required=False,choices=heroChioces,label = 'Allied Hero:')
 
-    myTeamSlot1_user = forms.CharField(required=False,widget=forms.TextInput(attrs={'class':'form-control','id':'allySearch_1'}),label = 'Your Steam Name')
-    myTeamSlot2_user = forms.CharField(required=False,widget=forms.TextInput(attrs={'class':'form-control','id':'allySearch_2'}),label = 'Steam User')
-    myTeamSlot3_user = forms.CharField(required=False,widget=forms.TextInput(attrs={'class':'form-control','id':'allySearch_3'}),label = 'Steam User')
-    myTeamSlot4_user = forms.CharField(required=False,widget=forms.TextInput(attrs={'class':'form-control','id':'allySearch_4'}),label = 'Steam User')
-    myTeamSlot5_user = forms.CharField(required=False,widget=forms.TextInput(attrs={'class':'form-control','id':'allySearch_5'}),label = 'Steam User')
+    allySlot1_user = forms.CharField(required=False,widget=forms.TextInput(attrs={'class':'form-control','id':'allySearch_1'}),label = 'Your Steam Name')
+    allySlot2_user = forms.CharField(required=False,widget=forms.TextInput(attrs={'class':'form-control','id':'allySearch_2'}),label = 'Steam User')
+    allySlot3_user = forms.CharField(required=False,widget=forms.TextInput(attrs={'class':'form-control','id':'allySearch_3'}),label = 'Steam User')
+    allySlot4_user = forms.CharField(required=False,widget=forms.TextInput(attrs={'class':'form-control','id':'allySearch_4'}),label = 'Steam User')
+    allySlot5_user = forms.CharField(required=False,widget=forms.TextInput(attrs={'class':'form-control','id':'allySearch_5'}),label = 'Steam User')
 
     enemySlot1_hero = forms.ChoiceField(required=False,choices=heroChioces,label = 'Enemy Hero:')
     enemySlot2_hero = forms.ChoiceField(required=False,choices=heroChioces,label = 'Enemy Hero:')

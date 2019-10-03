@@ -117,18 +117,35 @@ def winRatePlot(request,hero_id,USE_PRO=False):
                     )
 
     xLabels = ['Win','Loss']
+    rates = [wins/(wins+losses),losses/(wins+losses)]
     colors = ['#24ba1c','#ba1c1c']
 
-    try:
-        wlRates = [wins/(wins+losses),losses/(wins+losses)]
-    except Exception as e:
-        wlRates = [0.,0.]
+    # sourceDict = {
+    #     'outcome': ['Win','Loss'],
+    #     'counts': [wins/(wins+losses),losses/(wins+losses)],
+    # }
+
+    # plot it
+    #source = ColumnDataSource(sourceDict)
+    source = ColumnDataSource(data=dict(
+                                        outcome=xLabels, 
+                                        rates=rates,
+                                        fill_color=colors
+                                    )
+                )
 
     # configure plotting
     bokehAx=bp.figure(x_range=xLabels,plot_width=325,sizing_mode='scale_height')
     bokehAx.toolbar.logo = None
     bokehAx.toolbar_location = None
-    bokehAx.vbar(x=xLabels, top=wlRates, width=0.25,fill_color=colors)
+    bokehAx.vbar(x='outcome', top='rates', source=source, fill_color='fill_color',width=0.25)
+
+    bokehAx.add_tools(
+        HoverTool(
+            tooltips=[('Outcome', '@outcome'), ('Rate', '@rates')],
+            mode='vline'
+            )
+        )
 
     bokehAx.title.text = ''
     bokehAx.xaxis.axis_label = ''
@@ -781,7 +798,6 @@ def compute_features(heroDraftDict,userDraftDict,feature_list=[]):
                 # don't add the user's hero on the first pass through,
                 # otherwise the roles etc will get double counted
                 if heroKey == 'myTeamSlot1_hero':
-                    pdb.set_trace()
                     continue
 
                 hero = heroDraftDict[heroKey]
