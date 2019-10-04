@@ -13,32 +13,29 @@ class DefaultCustomAnalyzer(SentimentIntensityAnalyzer):
     def update_hardcoded_dota_sentiments(self):
 
         # define the new lexicon entries
-        new_words = {
-            # bad
+        new_lex = {
+            # examples of negative sentiment in dota lexicon
             'ff': -2.,
             'finish': -1.,
             'fast': -1.,
             'fats': -1.,
             'end': -1.,
-            'fuk': -2.,
             'meirde': -2.,
             'reddit': -1.,
             'cyka': -2.,
-            'blyat': -2.,
-            'byat': -2.,
             'afk': -1.,
-            'injoker': -1.,
 
-            # good
+            # examples of positive sentiment in dota lexicon
             'turtle': 1.,
             'ggwp': 2.,
-            'pog': 1.,
-            'pogchamp': 1.,
-            'poggers': 1.,
-
+            'glhf':2.,
+            'gl':2.,
+            'hf':2.,
+            'commend':2.,
+            'commended':2.,
             }
 
         # update
-        self.lexicon.update(new_words)
+        self.lexicon.update(new_lex)
 
         return 0

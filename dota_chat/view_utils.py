@@ -478,7 +478,7 @@ def generateRandomDraft(n_heros=10,VERBOSE=False):
                     draftedHero = heroProbDict[rateKeys[i+1]]
                     break
             except Exception as e:
-                print(e)
+                logger.error(e)
 
         if draftedHero not in heroDraft:
             heroDraft.append(draftedHero)
@@ -490,7 +490,7 @@ def generateRandomDraft(n_heros=10,VERBOSE=False):
         for hero in heroDraft:
             outStr += '{:>2}. {}\n'.format(i,hero)
             i += 1
-        print(outStr)
+        logger.info(outStr)
 
     return heroDraft
 
@@ -624,8 +624,6 @@ def predictHeroPick(cleanFormData):
                                 add_user=user
                             )
 
-            print(featureDict)
-
             # squash
             radiantDict = featureDict['RADIANT']
             direDict = featureDict['DIRE']
@@ -689,7 +687,7 @@ def update_features(featureDict_incomplete,add_hero,add_user=None):
                 try:
                     featureDict['RADIANT'][feature] += 1
                 except KeyError:
-                    print('Key {} not in featureDict'.format(feature))
+                    logger.error('Key {} not in featureDict'.format(feature))
 
         # now loop over abilities, add ability-based features
         for behavior in behaviorList:
@@ -697,7 +695,7 @@ def update_features(featureDict_incomplete,add_hero,add_user=None):
                 try:
                     featureDict['RADIANT'][feature] += 1
                 except KeyError:
-                    print('Key {} not in featureDict'.format(feature))
+                    logger.error('Key {} not in featureDict'.format(feature))
 
     ### Adjust all the features that are hero based simple averages ###
     if 'chat_sentiment' in feature_list:
@@ -722,7 +720,7 @@ def update_features(featureDict_incomplete,add_hero,add_user=None):
         else:
             userWinRate = 0.
 
-        print('{} on {}, win rate {}'.format(user, hero, userWinRate))
+        logger.info('{} on {}, win rate {}'.format(user, hero, userWinRate))
 
         if 'team_n_public' in feature_list:
             featureDict['RADIANT']['team_n_public'] += 1
@@ -1034,7 +1032,7 @@ def getHeroStats(account_id):
     if queryRes.status_code == 200:
         return queryRes.json()
     elif queryRes.status_code == 429:
-        print('OOPS, RATE LIMIT EXCEEDED')
+        logger.error('OOPS, RATE LIMIT EXCEEDED')
         time.sleep(0.05)
         return getHeroStats(account_id)
     else:
