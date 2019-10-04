@@ -13,6 +13,7 @@ class DefaultCustomAnalyzer(SentimentIntensityAnalyzer):
     def update_hardcoded_dota_sentiments(self):
 
         # define the new lexicon entries
+        # this is proof of concept, obviously not exhaustive
         new_lex = {
             # examples of negative sentiment in dota lexicon
             'ff': -2.,
