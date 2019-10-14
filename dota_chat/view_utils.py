@@ -73,7 +73,6 @@ def query_opendota_api_route_args(routeArgs,**kwargs):
         logger.error(errStr)
         queryRes = requests.Response()
         queryRes.status_code = 500
-        #pdb.set_trace()
 
     dataDict = queryRes.json()
 
@@ -570,6 +569,7 @@ def predictHeroPick(cleanFormData):
                                         )
                     userDraftDict[key] = userInstance.valveID
                 except Exception as e:
+                    logger.info('User not found: {} (no user entered, most likely)'.format(val))
                     userDraftDict[key] = ''
             else:
                 userDraftDict[key] = ''
@@ -796,6 +796,61 @@ def compute_features(heroDraftDict,userDraftDict,feature_list=[]):
                 # don't add the user's hero on the first pass through,
                 # otherwise the roles etc will get double counted
                 if heroKey == 'allySlot1_hero':
+
+                    # however, DO check to see if they have UserHeroStats, and if they
+                    # do not, then pull them, create them, then 'continue' thru the loop
+                    userInstance = models.SteamUser.objects.get(valveID=account_id)
+
+                    if not models.UserHeroStats.objects.filter(user=userInstance).exists():
+
+                        logger.info('QUERYING OD FOR PLAYER STATS')
+                        statsList = getHeroStats(userInstance.valveID)
+                        userStatBulkCreateList = []
+
+                        for heroStatDict in statsList:
+                            statHero = models.Hero.objects.get(valveID=int(heroStatDict['hero_id']))
+                            playerNGames = heroStatDict['games']
+                            playerNGames_with = heroStatDict['with_games']
+                            playerNGames_against = heroStatDict['against_games']
+                            playerWinGames = heroStatDict['win']
+                            playerWinGames_with = heroStatDict['with_win']
+                            playerWinGames_against = heroStatDict['against_win']
+
+                            # defaults
+                            hsDefaultDict = {
+                                    'games': playerNGames,
+                                    'win': playerWinGames,
+                                    'with_games': playerNGames_with,
+                                    'with_win': playerWinGames_with,
+                                    'against_games': playerNGames_against,
+                                    'against_win': playerWinGames_against,
+                                }
+
+                            # store
+                            hsInstance = models.UserHeroStats(
+                                            user = userInstance,
+                                            hero = statHero,
+                                            games = playerNGames,
+                                            win = playerWinGames,
+                                            with_games = playerNGames_with,
+                                            with_win = playerWinGames_with,
+                                            against_games = playerNGames_against,
+                                            against_win = playerWinGames_against
+                                )
+                            userStatBulkCreateList.append(hsInstance)
+
+                        try:
+                            models.UserHeroStats.objects.bulk_create(userStatBulkCreateList)
+                        except IntegrityError:
+                            for obj in userStatBulkCreateList:
+                                try:
+                                    obj.save()
+                                except IntegrityError:
+                                    continue
+
+
+                    # finally, continue, because we don't want to add P1 heroes here,
+                    # otherwise it'll get double counted when we update_features
                     continue
 
                 hero = heroDraftDict[heroKey]

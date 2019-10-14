@@ -72,7 +72,7 @@ class DraftView(FormView):
                 keyBase = 'enemySlot{}_'.format(i+1-5)
                 userKeyBase = '{}{}'.format(keyBase,'user')
                 heroKeyBase = '{}{}'.format(keyBase,'hero')
-                defaultData[userKeyBase] = 'enemy user {}'.format(i)
+                defaultData[userKeyBase] = 'Enemy {} profile'.format(i)
                 defaultData[heroKeyBase] = hero.valveID
             else:
                 pass
