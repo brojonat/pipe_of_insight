@@ -1,5 +1,5 @@
 ## Pipe of Insight
-Pipe of Insight is a Django based web application with the primary purpose of helping users draft the optimal hero in their Dota 2 matches. I developed this project as part of a 3 week sprint during the Insight Data Science 19C session; documentation and tests are admittedly lacking, but hopefully this README will offer a bit of clarity.
+Pipe of Insight is a Django based web application with the primary purpose of helping users draft the optimal hero in their Dota 2 matches. I developed this project as part of a 3 week sprint during the Insight Data Science 19C session; documentation and tests are admittedly lacking, but hopefully this README will offer a bit of clarity about the organizational structure.
 
 ---
 
