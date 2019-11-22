@@ -126,7 +126,6 @@ def parse_chat_pgroup(chatList,playerDict,num_humans=10,QUERY_OPENDOTA_API=False
                         # pop that element so the loop isn't as obnoxious
                         chatList.remove(chatEntry)
                     elif chatEntry.get('slot') is None:
-                        # this is fucked
                         # self.stdout.write(
                         #     self.style.WARNING(
                         #         'What is going on here: {}'.format(chatEntry)
